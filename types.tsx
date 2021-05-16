@@ -6,6 +6,12 @@
 export type RootStackParamList = {
   Root: undefined;
   NotFound: undefined;
+  Home: undefined;
+  HostSetup: undefined;
+  HostWait: undefined;
+  ParticipantWait: undefined;
+  Voting: undefined;
+  Ending: undefined;
 };
 
 export type BottomTabParamList = {
