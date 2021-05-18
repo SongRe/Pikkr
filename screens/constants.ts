@@ -1,8 +1,8 @@
 export enum SCREENS {
     HOME = 'Home',
     HOST_SETUP = 'HostSetup',
-    HOST_WAIT = 'HostWaiting',
-    PARTICIPANT_WAIT = 'ParticipantWaiting',
+    HOST_WAIT = 'HostWait',
+    PARTICIPANT_WAIT = 'ParticipantWait',
     VOTING = 'Voting',
     ENDING = 'Ending',
     
