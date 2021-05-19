@@ -14,6 +14,7 @@ import { RootStackParamList } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 import { HomeScreen } from './../screens/HomeScreen';
 import { HostWaitScreen } from './../screens/HostWaitScreen';
+import { HostSetupScreen } from './../screens/HostSetupScreen';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -31,8 +32,9 @@ const Stack = createStackNavigator<RootStackParamList>();
 function RootNavigator() {
   return (
     <Stack.Navigator initialRouteName={SCREENS.HOME}>
-      <Stack.Screen name={SCREENS.HOME} component={HomeScreen} />
-      <Stack.Screen name={SCREENS.HOST_WAIT} component={HostWaitScreen} />
+      <Stack.Screen name={SCREENS.HOME} component={HomeScreen} options={{ headerShown: false, }}/>
+      <Stack.Screen name={SCREENS.HOST_WAIT} component={HostWaitScreen} options={{ headerShown: false, }}/>
+      <Stack.Screen name={SCREENS.HOST_SETUP} component={HostSetupScreen} options={{ headerShown: false, }}/>
 
     </Stack.Navigator>
   );

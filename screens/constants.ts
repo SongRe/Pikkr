@@ -7,3 +7,5 @@ export enum SCREENS {
     ENDING = 'Ending',
     
 }
+
+
