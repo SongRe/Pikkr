@@ -7,6 +7,10 @@ a list of movies one at a time, with the user simply swiping in order to vote on
 
 Technology Used
 -
-
+- Google Firebase / Firestore
+- Typescript / Javascript
+- React Native
+- Recoil
+- (Originally) Android Studio + Java
 Future Updates
 -
