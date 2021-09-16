@@ -12,5 +12,9 @@ Technology Used
 - React Native
 - Recoil
 - (Originally) Android Studio + Java
+
+
 Future Updates
 -
+- Updating app to match new Figma updates
+- Voting sync with Firestore
