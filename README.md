@@ -13,6 +13,14 @@ Technology Used
 - Recoil
 - (Originally) Android Studio + Java
 
+UI
+-
+
+![image](https://user-images.githubusercontent.com/49730299/133906004-3c8058ca-9b4f-4ad1-85cf-95868d096e3f.png)
+![image](https://user-images.githubusercontent.com/49730299/133906008-ef301451-7142-4329-8d6f-6b694c7062c0.png)
+![image](https://user-images.githubusercontent.com/49730299/133906011-e8182f94-3aa3-427a-8719-071ea0a850dd.png)
+![image](https://user-images.githubusercontent.com/49730299/133906015-95ca4eb0-d5a6-487a-83a4-25e2c57c8e41.png)
+
 
 Future Updates
 -
