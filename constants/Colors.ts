@@ -21,6 +21,7 @@ export default {
 export enum COLORS  {
   LIGHT_BLACK = '#1E1E20',
   DARK_GREY = '#292A2F',
-  LIGHT_GREY = '#979797'
+  LIGHT_GREY = '#979797',
+  TITLE_TEXT = '#DFDFDF',
 }
 
