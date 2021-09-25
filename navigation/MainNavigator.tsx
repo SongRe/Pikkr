@@ -3,6 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SCREENS } from '../screens/constants';
 import { HomeScreen, HostSetupScreen, HostWaitScreen } from './../screens/index';
+import { StatusBar } from 'expo-status-bar';
 
 export type RootStackParamList = {
     NotFound: undefined;
@@ -21,10 +22,14 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export const HomeNavigator = () => {
     return(
         <NavigationContainer>
-            <Stack.Navigator>
+            <StatusBar hidden={true}/>
+            <Stack.Navigator
+            screenOptions={{
+                headerShown: false,
+            }}>
                 <Stack.Screen name={SCREENS.HOME} component={HomeScreen} options={{headerShown: false, }} />
-                <Stack.Screen name={SCREENS.HOST_SETUP} component={HostSetupScreen} />
-                <Stack.Screen name={SCREENS.HOST_WAIT} component={HostWaitScreen} />
+                <Stack.Screen name={SCREENS.HOST_SETUP} component={HostSetupScreen} options={{headerShown: false, }}/>
+                <Stack.Screen name={SCREENS.HOST_WAIT} component={HostWaitScreen} options={{headerShown: false, }}/>
             </Stack.Navigator>
         </NavigationContainer>
 

@@ -18,10 +18,17 @@ export default {
   },
 };
 
+/**
+ * 
+ */
 export enum COLORS  {
-  LIGHT_BLACK = '#1E1E20',
-  DARK_GREY = '#292A2F',
-  LIGHT_GREY = '#979797',
-  TITLE_TEXT = '#DFDFDF',
+  BLACK = '#1E1E20', //the black that we use
+  RED = '#FF7676',
+  WHITE = '#DFDFDF', //shade of white we use
+  DARK_GREY = '#292A2F', //a lighter version of the black xd
+  LIGHT_GREY = '#979797', //
+
+  TEXT_INPUT = '#44454E', //background color for text input
+  
 }
 

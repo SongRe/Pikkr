@@ -10,7 +10,7 @@ export const HostSetupScreen = () => {
     return (
         <View>
             <Text>
-                Host Wait Screen.
+                Host Setup Screen.
             </Text>
         </View>
     )
