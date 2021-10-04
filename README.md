@@ -26,3 +26,4 @@ Future Updates
 -
 - Updating app to match new Figma updates
 - Voting sync with Firestore
+- Tracker for movies watched, and update recommendations accordingly
