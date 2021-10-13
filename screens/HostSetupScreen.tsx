@@ -7,9 +7,11 @@ import { SCREENS } from './constants';
 import { useNavigation } from '@react-navigation/core';
 import { useState } from 'react';
 import { BackIcon } from '../components/Icons';
+import { FlatGrid } from 'react-native-super-grid';
 
 //TODO: setup selectable grid for genres and update the atom accordingly
-
+//TODO: Setup async api call for movie data objects
+//TODO: Typing for the movie data objects that come in
 const sampleData = [{ label: 'Action'} , {label: 'Horror'}, {label: 'Family'}, {label: 'Comedy'}]
 
 export const HostSetupScreen = () => {
@@ -63,6 +65,18 @@ export const HostSetupScreen = () => {
                                 <View style={setupStyles.groupContainer}>
                                     <Text style={setupStyles.subtitle}>Preference</Text>
                                     <Text style={setupStyles.text}>Filter by genre:</Text>
+                                    <FlatGrid
+                                        itemDimension={130}
+                                        data={sampleData}
+                                        renderItem={({item}) =>  {
+                                            return (
+                                                <View> 
+                                                    {item.label}
+                                                </View>
+                                            )
+                                      
+                                        }}
+                                    />
 
 
                                 </View>
@@ -75,11 +89,6 @@ export const HostSetupScreen = () => {
                                     }}
                                 />
                             </View>
-
-
-
-
-
                         )}
                     </Formik>
                 </View>
