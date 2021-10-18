@@ -28,6 +28,8 @@ export enum COLORS  {
   DARK_GREY = '#292A2F', //a lighter version of the black xd
   LIGHT_GREY = '#979797', //
 
+  GENRE_PURPLE = '#6F7AFF',
+  GENRE_WHITE = '#CCCCCC',
   TEXT_INPUT = '#44454E', //background color for text input
   
 }

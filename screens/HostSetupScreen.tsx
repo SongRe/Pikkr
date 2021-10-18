@@ -8,15 +8,35 @@ import { useNavigation } from '@react-navigation/core';
 import { useState } from 'react';
 import { BackIcon } from '../components/Icons';
 import { FlatGrid } from 'react-native-super-grid';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { selectedGenresState } from './../state/atoms/atoms';
+import  SelectableGrid from 'react-native-selectable-grid';
 
 //TODO: setup selectable grid for genres and update the atom accordingly
 //TODO: Setup async api call for movie data objects
 //TODO: Typing for the movie data objects that come in
 const sampleData = [{ label: 'Action'} , {label: 'Horror'}, {label: 'Family'}, {label: 'Comedy'}]
 
+
+//TODO: Remove any typing 
 export const HostSetupScreen = () => {
     const setupStyles = useStyles();
     const nav = useNavigation();
+
+    const [selectedGenres, setSelectedGenres] = useRecoilState(selectedGenresState);
+
+    // const addGenre = (genre: any) => {
+    //     if(selectedGenres.indexOf(genre) === -1) { //if this genre isn't in selectedGenres
+    //         setSelectedGenres((oldSelectedGenres: any) => [
+    //             ...oldSelectedGenres,
+    //             genre
+    //         ])
+    //     } else {
+    //         const newList = removeItemAtIndex(selectedGenres, selectedGenres.indexOf(genre));
+    //         setSelectedGenres(newList);
+    //     }
+    //     return genre;
+    // }
 
     const [numError, setNumError] = useState(false);
     return (
@@ -65,16 +85,13 @@ export const HostSetupScreen = () => {
                                 <View style={setupStyles.groupContainer}>
                                     <Text style={setupStyles.subtitle}>Preference</Text>
                                     <Text style={setupStyles.text}>Filter by genre:</Text>
-                                    <FlatGrid
-                                        itemDimension={130}
+                                    <SelectableGrid 
                                         data={sampleData}
-                                        renderItem={({item}) =>  {
-                                            return (
-                                                <View> 
-                                                    {item.label}
-                                                </View>
-                                            )
-                                      
+                                        unSelectedRender={(data: any) => {
+                                            <View>
+                                                <Text>{data.label}</Text>
+                                            </View>
+
                                         }}
                                     />
 
@@ -97,6 +114,10 @@ export const HostSetupScreen = () => {
             </View>
         </View>
     )
+}
+
+function removeItemAtIndex(arr: [], index: number) {
+    return [...arr.slice(0, index), ...arr.slice(index + 1)];
 }
 
 const useStyles = makeStyles(() => ({

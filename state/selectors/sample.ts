@@ -3,6 +3,8 @@ import { selectedGenresState } from './../atoms/atoms';
 
 //Sample aync selector for other contributors
 
+
+//change name to "start room query .. or something"
 export const currentUserNameQuery = selector({
     key: 'CurrentUserName',
     get: async ({ get }) => {
@@ -12,6 +14,23 @@ export const currentUserNameQuery = selector({
         return response;
     },
 });
+
+/*
+    the object, {
+        userID: get(selectedGenresState) 
+
+    }
+    is passed into myDBQuery and the response is gotten from our backend
+*/
+
+export const addGenre = selector({
+    key: 'AddGenre',
+    get: ({ get }) => {
+        
+    }
+
+})
+
 
 //sample sync selector
 //   const currentUserNameState = selector({
