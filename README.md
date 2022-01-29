@@ -27,3 +27,12 @@ Future Updates
 - Updating app to match new Figma updates
 - Voting sync with Firestore
 - Tracker for movies watched, and update recommendations accordingly
+
+Useful commands 
+- ```expo start``` will launch the app
+- ```jest -watchAll``` will launch the app in test
+
+Useful scripts
+- ```expo start --android```
+- ```expo start --ios```
+- ```expo start --web```
