@@ -50,7 +50,6 @@ export const GenreButton = (props: GenreButtonProps) => {
     
     }));
 
-
     const styles = useStyles();
     return (
         <View>

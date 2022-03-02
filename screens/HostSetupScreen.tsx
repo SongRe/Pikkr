@@ -10,13 +10,12 @@ import { BackIcon } from '../components/Icons';
 import { FlatGrid } from 'react-native-super-grid';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { selectedGenresState } from './../state/atoms/atoms';
-import  SelectableGrid from 'react-native-selectable-grid';
+import SelectableGrid from 'react-native-selectable-grid';
 
 //TODO: setup selectable grid for genres and update the atom accordingly
 //TODO: Setup async api call for movie data objects
 //TODO: Typing for the movie data objects that come in
-const sampleData = [{ label: 'Action'} , {label: 'Horror'}, {label: 'Family'}, {label: 'Comedy'}]
-
+const sampleData = [{ label: 'Action' }, { label: 'Horror' }, { label: 'Family' }, { label: 'Comedy' }]
 
 //TODO: Remove any typing 
 export const HostSetupScreen = () => {
@@ -85,17 +84,6 @@ export const HostSetupScreen = () => {
                                 <View style={setupStyles.groupContainer}>
                                     <Text style={setupStyles.subtitle}>Preference</Text>
                                     <Text style={setupStyles.text}>Filter by genre:</Text>
-                                    <SelectableGrid 
-                                        data={sampleData}
-                                        unSelectedRender={(data: any) => {
-                                            <View>
-                                                <Text>{data.label}</Text>
-                                            </View>
-
-                                        }}
-                                    />
-
-
                                 </View>
                                 <Button titleStyle={setupStyles.buttonText}
                                     title='Create'
@@ -148,7 +136,7 @@ const useStyles = makeStyles(() => ({
         zIndex: 1,
         paddingVertical: '5%',
         paddingHorizontal: '4%',
-        height: '90%',
+        height: '100%',
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -198,7 +186,8 @@ const useStyles = makeStyles(() => ({
         backgroundColor: COLORS.DARK_GREY,
         padding: '7%',
         borderRadius: 20,
-        marginTop: '5%',
+        marginTop: 10,
+        flex: 1,
     },
     codeText: {
         color: 'white',
@@ -223,7 +212,7 @@ const useStyles = makeStyles(() => ({
     createButtonContainer: {
         marginTop: '5%',
         position: 'absolute',
-        bottom: 0,
+        bottom: 20,
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf: 'center',
