@@ -27,6 +27,7 @@ Future Updates
 - Updating app to match new Figma updates
 - Voting sync with Firestore
 - Tracker for movies watched, and update recommendations accordingly
+- Authentication for users
 
 Useful commands 
 - ```expo start``` will launch the app

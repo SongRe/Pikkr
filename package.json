@@ -34,6 +34,7 @@
         "react": "0.0.0-experimental-cb11155c8-20211112",
         "react-dom": "0.0.0-experimental-cb11155c8-20211112",
         "react-native": "^0.65.1",
+        "react-native-dotenv": "^3.3.1",
         "react-native-elements": "^3.4.1",
         "react-native-gesture-handler": "~1.10.2",
         "react-native-reanimated": "~2.1.0",

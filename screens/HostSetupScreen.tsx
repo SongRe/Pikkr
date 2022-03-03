@@ -13,7 +13,8 @@ import { selectedGenresState } from './../state/atoms/atoms';
 import { getDatabase, ref, onValue, set } from 'firebase/database';
 import { generalStyles } from './../constants/Styles';
 import { Genre, GenreItem } from '../constants/Types';
-import { FlatList } from 'react-native-gesture-handler';
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
 
 //TODO: setup selectable grid for genres and update the atom accordingly
 //TODO: Setup async api call for movie data objects
@@ -91,10 +92,11 @@ export const HostSetupScreen = () => {
                         initialValues={{ code: "" }}
                         onSubmit={(values) => {
                             console.log(values);
-                            const db = getDatabase();
-                            const reference = ref(db, 'test/' + values.code);
-                            set(reference, {
-                                test: values,
+                            const firestore = getFirestore();
+                            setDoc(doc(firestore, "Rooms", "1234"), {
+                                size: 2,
+                                isVoting: false,
+                                result: values.code,
                             });
                             //this is where we will validate the people input, and navigate / display error accordingly
                             nav.navigate(SCREENS.HOST_WAIT);
@@ -117,7 +119,6 @@ export const HostSetupScreen = () => {
                                                 style={setupStyles.codeText}
                                                 keyboardType='number-pad'
                                             />
-
                                         </View>
                                     </View>
                                 </View>
@@ -130,6 +131,8 @@ export const HostSetupScreen = () => {
                                         renderItem={renderItem}
                                         keyExtractor={(item) => { return item.id; }}
                                         extraData={selectedGenres}
+                                        numColumns={3}
+                                        showsVerticalScrollIndicator={false}
                                     />
                                 </View>
                                 <Button titleStyle={setupStyles.buttonText}
