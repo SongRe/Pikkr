@@ -1,51 +1,54 @@
 import { Formik } from 'formik';
 import * as React from 'react';
-import { Text, View, Image, TextInput, TouchableOpacity, ListRenderItem } from 'react-native';
+import { Text, View, Image, TextInput, TouchableOpacity, ListRenderItem, ActivityIndicator } from 'react-native';
 import { Button, makeStyles, } from 'react-native-elements';
 import { COLORS } from '../constants/Colors';
 import { SCREENS } from './constants';
 import { useNavigation } from '@react-navigation/core';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { BackIcon } from '../components/Icons';
 import { FlatGrid } from 'react-native-super-grid';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { selectedGenresState } from './../state/atoms/atoms';
 import { getDatabase, ref, onValue, set } from 'firebase/database';
 import { generalStyles } from './../constants/Styles';
-import { Genre, GenreItem } from '../constants/Types';
+import { Genre, GenreItem, Room } from '../constants/Types';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { useEffect } from 'react';
+import { movieKey } from './../constants/Keys';
 
 //TODO: setup selectable grid for genres and update the atom accordingly
 //TODO: Setup async api call for movie data objects
 //TODO: Typing for the movie data objects that come in
 
-const DATA = [
-    {
-        id: "id_1",
-        title: "First Item",
-    },
-    {
-        id: "id_2",
-        title: "Second Item",
-    },
-    {
-        id: "id_3",
-        title: "Third Item",
-    },
-];
-
+let DATA: Genre[] = [];
 export const HostSetupScreen = () => {
     const setupStyles = useStyles();
     const genStyles = generalStyles();
     const nav = useNavigation();
 
+    const [isLoading, setIsLoading] = useState(true);
+    const [numError, setNumError] = useState(false);
+    const [error, setError] = useState(null);
     const [selectedGenres, setSelectedGenres] = useRecoilState(selectedGenresState);
+
+    const fetchGenres = (async () => {
+        let response: any = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${movieKey}&language=en-US`);
+        if (response.ok) {
+            response = await response.json();
+            const genres = response.genres;
+            DATA = genres;
+            setIsLoading(false);
+        } else {
+            setError(response.message);
+        }
+    });
 
     const Item = (props: GenreItem) => {
         return (
             <TouchableOpacity onPress={props.onPress} style={[setupStyles.genreItem, { borderColor: props.borderColor }]}>
-                <Text style={[setupStyles.title, { color: props.textColor }]}>{props.genre.title}</Text>
+                <Text style={[setupStyles.genreText, { color: props.textColor }]}>{props.genre.name}</Text>
             </TouchableOpacity>
         )
     }
@@ -74,8 +77,11 @@ export const HostSetupScreen = () => {
         )
     }
 
-    const [numError, setNumError] = useState(false);
-    return (
+    useEffect(() => {
+        fetchGenres();
+    }, []);
+
+        return (
         <View style={genStyles.layout}>
             <Image
                 style={setupStyles.image}
@@ -85,38 +91,50 @@ export const HostSetupScreen = () => {
                 <View style={setupStyles.iconContainer}>
                     <BackIcon onPress={() => { nav.goBack() }} size={40} color={COLORS.WHITE} />
                 </View>
-                <Text style={setupStyles.title}>New Room</Text>
+                <Text style={genStyles.title}>New Room</Text>
 
-                <ScrollView showsVerticalScrollIndicator={false}>
+                <ScrollView showsVerticalScrollIndicator={false} style={{ borderRadius: 20 }}>
                     <Formik
-                        initialValues={{ code: "" }}
+                        initialValues={{ size: "" }}
                         onSubmit={(values) => {
-                            console.log(values);
-                            //TODO: create a method for this
-                            const firestore = getFirestore();
-                            setDoc(doc(firestore, "Rooms", "1234"), {
-                                size: 2,
-                                isVoting: false,
-                                result: values.code,
-                            });
+                            if(!values.size || values.size === "") {
+                                setNumError(true);
+                            } else {
+                                setNumError(false);
+                                try {
+                                    const rmSize = parseInt(values.size);
+                                    const room: Room = {
+                                        size: rmSize,
+                                        isVoting: false,
+                                        selectedGenres: selectedGenres,
+                                    }
+                                    createRoom(room);
+
+                                } catch (error: any) {
+                                    console.log(error);
+                                    setError(error.message);
+                                }
+                                nav.navigate(SCREENS.HOST_WAIT);
+                            }
+ 
                             //this is where we will validate the people input, and navigate / display error accordingly
-                            nav.navigate(SCREENS.HOST_WAIT);
                         }}
                     >
                         {({ handleChange, handleBlur, handleSubmit, values }) => (
                             <View style={setupStyles.formContainer}>
-                                <View style={setupStyles.groupContainer}>
+                                <View style={genStyles.groupContainer}>
                                     <View style={setupStyles.column}>
-                                        <Text style={setupStyles.subtitle}>Number of People</Text>
-                                        <Text style={setupStyles.errorText}>{numError ? 'Room does not exist' : ''}</Text>
+                                        <Text style={genStyles.subtitle}>Number of People</Text>
+                                        <Text style={genStyles.errorText}>{numError ? 'Please enter a valid room size.' : ''}</Text>
+                                        <Text style={genStyles.errorText}>{error ? error : ''}</Text>
                                         <View style={setupStyles.codeContainer}>
                                             <TextInput
                                                 maxLength={4} // code length    
-                                                onChangeText={handleChange("code")}
-                                                onBlur={handleBlur("code")}
+                                                onChangeText={handleChange("size")}
+                                                onBlur={handleBlur("size")}
                                                 autoCapitalize='characters'
                                                 underlineColorAndroid='transparent'
-                                                value={values.code}
+                                                value={values.size}
                                                 style={setupStyles.codeText}
                                                 keyboardType='number-pad'
                                             />
@@ -124,17 +142,20 @@ export const HostSetupScreen = () => {
                                     </View>
                                 </View>
 
-                                <View style={setupStyles.groupContainer}>
-                                    <Text style={setupStyles.subtitle}>Preference</Text>
-                                    <Text style={setupStyles.text}>Filter by genre:</Text>
-                                    <FlatList
+                                <View style={genStyles.groupContainer}>
+                                    <Text style={genStyles.subtitle}>Preference</Text>
+                                    <Text style={genStyles.text}>Filter by genre:</Text>
+                                    {isLoading ? <ActivityIndicator size={'small'} /> : <FlatList
                                         data={DATA}
                                         renderItem={renderItem}
                                         keyExtractor={(item) => { return item.id; }}
                                         extraData={selectedGenres}
-                                        numColumns={3}
                                         showsVerticalScrollIndicator={false}
+                                        numColumns={10}
+                                        style={{ display: 'flex', height: '11rem' }}
                                     />
+                                    }
+
                                 </View>
                                 <Button titleStyle={setupStyles.buttonText}
                                     title='Create'
@@ -155,8 +176,17 @@ export const HostSetupScreen = () => {
     )
 }
 
-function removeItemAtIndex(arr: [], index: number) {
-    return [...arr.slice(0, index), ...arr.slice(index + 1)];
+
+export const createRoom = (room: Room) => {
+    const firestore = getFirestore();
+    const room_code = generateRoomCode();
+    setDoc(doc(firestore, "Rooms", `${room_code}`), room);
+}
+
+export const generateRoomCode = () => {
+    // this will be a random number for now, but we will need to check if the room exists on firestore
+    const roomNum = Math.round(Math.random() * 99999) // number between 0 and 99999
+    return roomNum;
 }
 
 const useStyles = makeStyles(() => ({
@@ -179,38 +209,22 @@ const useStyles = makeStyles(() => ({
         height: '97%',
     },
 
-    title: {
-        fontFamily: "Poppins",
-        color: COLORS.WHITE,
-        fontSize: 34,
-        textAlign: 'center',
-    },
-    subtitle: {
-        fontFamily: "Poppins",
-        color: COLORS.WHITE,
-        fontSize: 24,
-    },
-    text: {
-        fontFamily: 'Poppins',
-        color: COLORS.WHITE,
-        fontSize: 14,
-    },
+
     genreText: {
         fontFamily: 'Poppins',
         color: COLORS.WHITE,
-        fontSize: 14,
+        fontSize: 11,
     },
     genreItem: {
         borderRadius: 15,
-        padding: '3%',
+        padding: '1%',
         borderWidth: 2,
+        alignItems: 'center',
+        flex: 1,
+        marginRight: '0.5%',
+        marginBottom: '0.5%',
     },
 
-    errorText: {
-        fontFamily: 'Poppins',
-        color: COLORS.RED,
-        fontSize: 14,
-    },
     codeContainer: {
         display: "flex",
         flexDirection: "row",
@@ -218,16 +232,6 @@ const useStyles = makeStyles(() => ({
         backgroundColor: COLORS.TEXT_INPUT,
         borderRadius: 20,
         padding: '3%',
-    },
-    groupContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        backgroundColor: COLORS.DARK_GREY,
-        padding: '7%',
-        borderRadius: 20,
-        marginTop: 10,
-        flex: 1,
     },
     codeText: {
         color: 'white',
@@ -238,7 +242,7 @@ const useStyles = makeStyles(() => ({
     },
 
     createButton: {
-        borderRadius: 30,
+        borderRadius: 20    ,
         width: '100%',
 
     },

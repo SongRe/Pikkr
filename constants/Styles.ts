@@ -23,5 +23,39 @@ export const generalStyles = makeStyles({
         position: 'absolute',
         bottom: 0,
     },
+    
+    errorText: {
+        fontFamily: 'Poppins',
+        color: COLORS.RED,
+        fontSize: 14,
+    },
+    title: {
+        fontFamily: "Poppins",
+        color: COLORS.WHITE,
+        fontSize: 34,
+        textAlign: 'center',
+    },
+    subtitle: {
+        fontFamily: "Poppins",
+        color: COLORS.WHITE,
+        fontSize: 24,
+    },
+    text: {
+        fontFamily: 'Poppins',
+        color: COLORS.WHITE,
+        fontSize: 14,
+    },
+
+    groupContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        backgroundColor: COLORS.DARK_GREY,
+        paddingHorizontal: '5%',
+        paddingVertical: '7%',
+        borderRadius: 20,
+        flex: 1,
+        marginTop: 10,
+    },
 
 })

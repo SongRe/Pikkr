@@ -26,9 +26,9 @@ export const HomeScreen = (): JSX.Element => {
                 source={require("../assets/images/PikkrBackgroundVector.png")}
             />
             <View style={genStyles.mainContainer}>
-                <Text style={homeStyles.title}>Get Started</Text>
+                <Text style={genStyles.title}>Get Started</Text>
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={homeStyles.groupContainer}>
+                    <View style={genStyles.groupContainer}>
                         <Formik
                             initialValues={{ code: "" }}
                             onSubmit={(values) => {
@@ -39,9 +39,9 @@ export const HomeScreen = (): JSX.Element => {
                         >
                             {({ handleChange, handleBlur, handleSubmit, values }) => (
                                 <View style={homeStyles.column}>
-                                    <Text style={homeStyles.subtitle}>Have a room?</Text>
+                                    <Text style={genStyles.subtitle}>Have a room?</Text>
                                     <Text style={homeStyles.text}>Enter the 4-digit code obtained by the room host.</Text>
-                                    <Text style={homeStyles.errorText}>{codeError ? 'Room does not exist' : ''}</Text>
+                                    <Text style={genStyles.errorText}>{codeError ? 'Room does not exist' : ''}</Text>
                                     <View style={homeStyles.codeContainer}>
                                         <TextInput
                                             maxLength={4} // code length    
@@ -70,8 +70,8 @@ export const HomeScreen = (): JSX.Element => {
                         </Formik>
                     </View>
 
-                    <View style={homeStyles.groupContainer}>
-                        <Text style={homeStyles.subtitle}>New room</Text>
+                    <View style={genStyles.groupContainer}>
+                        <Text style={genStyles.subtitle}>New room</Text>
                         <Text style={homeStyles.text}>Create a room for a set amount of people and become the room owner.</Text>
                         <Button titleStyle={homeStyles.buttonText}
                             title='Create'
@@ -100,26 +100,9 @@ const useStyles = makeStyles(() => ({
         position: "absolute",
         zIndex: 0,
     },
-    title: {
-        fontFamily: "Poppins",
-        color: COLORS.WHITE,
-        fontSize: 34,
-        marginLeft: '5%',
-    },
-    subtitle: {
-        fontFamily: "Poppins",
-        color: COLORS.WHITE,
-        fontSize: 24,
-    },
     text: {
         fontFamily: 'Poppins',
         color: COLORS.WHITE,
-        fontSize: 14,
-    },
-
-    errorText: {
-        fontFamily: 'Poppins',
-        color: COLORS.RED,
         fontSize: 14,
     },
     codeContainer: {
@@ -132,17 +115,7 @@ const useStyles = makeStyles(() => ({
         borderRadius: 20,
 
     },
-    groupContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        backgroundColor: COLORS.DARK_GREY,
-        paddingHorizontal: '5%',
-        paddingVertical: '7%',
-        borderRadius: 20,
-        flex: 1,
-        marginTop: 10,
-    },
+
     codeText: {
         color: 'white',
         fontSize: 20,

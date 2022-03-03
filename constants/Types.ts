@@ -3,6 +3,12 @@
 //     title: string,
 // }
 
+// future use
+export interface User {
+    id: string,
+    perms: string,
+}
+
 export interface GenreItem {
     genre: Genre;
     onPress: () => void;
@@ -11,6 +17,14 @@ export interface GenreItem {
 
 }
 export interface Genre {
-    id: string;
-    title: string;
+    id: number;
+    name: string;
 }
+
+export interface Room {
+    size: number;
+    isVoting: false;
+    connectedUsers?: User[];
+    selectedGenres?: Genre[];
+}
+
