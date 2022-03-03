@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/core";
 import * as React from "react";
-import { StyleSheet, Text, View, Image, TextInput } from "react-native";
+import { StyleSheet, Text, View, Image, TextInput, ScrollView } from "react-native";
 import { Button, makeStyles } from "react-native-elements";
 import { SCREENS } from "./constants";
 import { COLORS } from "../constants/Colors";
@@ -27,62 +27,64 @@ export const HomeScreen = (): JSX.Element => {
             />
             <View style={genStyles.mainContainer}>
                 <Text style={homeStyles.title}>Get Started</Text>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <View style={homeStyles.groupContainer}>
+                        <Formik
+                            initialValues={{ code: "" }}
+                            onSubmit={(values) => {
+                                console.log(values);
+                                //this is where we will validate the code, and navigate / display error accordingly
+                                nav.navigate(SCREENS.HOST_SETUP)
+                            }}
+                        >
+                            {({ handleChange, handleBlur, handleSubmit, values }) => (
+                                <View style={homeStyles.column}>
+                                    <Text style={homeStyles.subtitle}>Have a room?</Text>
+                                    <Text style={homeStyles.text}>Enter the 4-digit code obtained by the room host.</Text>
+                                    <Text style={homeStyles.errorText}>{codeError ? 'Room does not exist' : ''}</Text>
+                                    <View style={homeStyles.codeContainer}>
+                                        <TextInput
+                                            maxLength={4} // code length    
+                                            onChangeText={handleChange("code")}
+                                            onBlur={handleBlur("code")}
+                                            autoCapitalize='characters'
+                                            underlineColorAndroid='transparent'
+                                            value={values.code}
+                                            style={homeStyles.codeText}
 
-                <View style={homeStyles.groupContainer}>
-                    <Formik
-                        initialValues={{ code: "" }}
-                        onSubmit={(values) => {
-                            console.log(values);
-                            //this is where we will validate the code, and navigate / display error accordingly
-                            nav.navigate(SCREENS.HOST_SETUP)
-                        }}
-                    >
-                        {({ handleChange, handleBlur, handleSubmit, values }) => (
-                            <View style={homeStyles.column}>
-                                <Text style={homeStyles.subtitle}>Have a room?</Text>
-                                <Text style={homeStyles.text}>Enter the 4-digit code obtained by the room host.</Text>
-                                <Text style={homeStyles.errorText}>{codeError ? 'Room does not exist' : ''}</Text>
-                                <View style={homeStyles.codeContainer}>
-                                    <TextInput
-                                        maxLength={4} // code length    
-                                        onChangeText={handleChange("code")}
-                                        onBlur={handleBlur("code")}
-                                        autoCapitalize='characters'
-                                        underlineColorAndroid='transparent'
-                                        value={values.code}
-                                        style={homeStyles.codeText}
+                                        />
+
+                                    </View>
+                                    <Button
+                                        onPress={() => {
+                                            handleSubmit();
+                                        }}
+                                        title="Connect"
+                                        titleStyle={homeStyles.buttonText}
+                                        buttonStyle={homeStyles.createButton}
+                                        containerStyle={homeStyles.createButtonContainer}
 
                                     />
-
                                 </View>
-                                <Button
-                                    onPress={() => {
-                                        handleSubmit();
-                                    }}
-                                    title="Connect"
-                                    titleStyle={homeStyles.buttonText}
-                                    buttonStyle={homeStyles.createButton}
-                                    containerStyle={homeStyles.createButtonContainer}
-                                    
-                                />
-                            </View>
-                        )}
-                    </Formik>
-                </View>
+                            )}
+                        </Formik>
+                    </View>
 
-                <View style={homeStyles.groupContainer}>
-                    <Text style={homeStyles.subtitle}>New room</Text>
-                    <Text style={homeStyles.text}>Create a room for a set amount of people and become the room owner.</Text>
-                    <Button titleStyle={homeStyles.buttonText}
-                        title='Create'
-                        buttonStyle={homeStyles.createButton}
-                        containerStyle={homeStyles.createButtonContainer}
-                        onPress={() => {
-                            nav.navigate(SCREENS.HOST_SETUP)
-                        }}
-                    />
+                    <View style={homeStyles.groupContainer}>
+                        <Text style={homeStyles.subtitle}>New room</Text>
+                        <Text style={homeStyles.text}>Create a room for a set amount of people and become the room owner.</Text>
+                        <Button titleStyle={homeStyles.buttonText}
+                            title='Create'
+                            buttonStyle={homeStyles.createButton}
+                            containerStyle={homeStyles.createButtonContainer}
+                            onPress={() => {
+                                nav.navigate(SCREENS.HOST_SETUP)
+                            }}
+                        />
 
-                </View>
+                    </View>
+                </ScrollView>
+
             </View>
         </View>
     );

@@ -6,7 +6,7 @@
 export interface GenreItem {
     genre: Genre;
     onPress: () => void;
-    backgroundColor: string;
+    borderColor: string;
     textColor: string;
 
 }

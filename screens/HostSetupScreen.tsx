@@ -44,15 +44,15 @@ export const HostSetupScreen = () => {
 
     const Item = (props: GenreItem) => {
         return (
-            <TouchableOpacity onPress={props.onPress} style={[setupStyles.genreItem, { backgroundColor: props.backgroundColor }]}>
+            <TouchableOpacity onPress={props.onPress} style={[setupStyles.genreItem, { borderColor: props.borderColor }]}>
                 <Text style={[setupStyles.title, { color: props.textColor }]}>{props.genre.title}</Text>
             </TouchableOpacity>
         )
     }
 
     const renderItem: ListRenderItem<Genre> = ({ item }) => {
-        const backgroundColor = (selectedGenres.includes(item)) ? COLORS.DARK_GREY : COLORS.LIGHT_GREY;
-        const textColor = COLORS.GENRE_WHITE;
+        const borderColor = (selectedGenres.includes(item)) ? COLORS.GENRE_PURPLE : COLORS.GENRE_WHITE;
+        const textColor = (selectedGenres.includes(item)) ? COLORS.GENRE_PURPLE : COLORS.GENRE_WHITE;
         return (
             <Item
                 genre={item}
@@ -68,7 +68,7 @@ export const HostSetupScreen = () => {
                     }
 
                 }}
-                backgroundColor={backgroundColor}
+                borderColor={borderColor}
                 textColor={textColor}
             />
         )
@@ -87,11 +87,12 @@ export const HostSetupScreen = () => {
                 </View>
                 <Text style={setupStyles.title}>New Room</Text>
 
-                <View>
+                <ScrollView showsVerticalScrollIndicator={false}>
                     <Formik
                         initialValues={{ code: "" }}
                         onSubmit={(values) => {
                             console.log(values);
+                            //TODO: create a method for this
                             const firestore = getFirestore();
                             setDoc(doc(firestore, "Rooms", "1234"), {
                                 size: 2,
@@ -146,7 +147,7 @@ export const HostSetupScreen = () => {
                             </View>
                         )}
                     </Formik>
-                </View>
+                </ScrollView>
 
 
             </View>
@@ -200,7 +201,9 @@ const useStyles = makeStyles(() => ({
         fontSize: 14,
     },
     genreItem: {
-
+        borderRadius: 15,
+        padding: '3%',
+        borderWidth: 2,
     },
 
     errorText: {
