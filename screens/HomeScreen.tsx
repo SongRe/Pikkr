@@ -6,10 +6,12 @@ import { SCREENS } from "./constants";
 import { COLORS } from "../constants/Colors";
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
+import { generalStyles } from './../constants/Styles';
 
 export const HomeScreen = (): JSX.Element => {
     const nav = useNavigation();
     const homeStyles = useStyles();
+    const genStyles = generalStyles();
 
     const [codeError, setCodeError] = useState(false);
 
@@ -18,12 +20,12 @@ export const HomeScreen = (): JSX.Element => {
     };
 
     return (
-        <View style={homeStyles.layout}>
+        <View style={genStyles.layout}>
             <Image
                 style={homeStyles.image}
                 source={require("../assets/images/PikkrBackgroundVector.png")}
             />
-            <View style={homeStyles.mainContainer}>
+            <View style={genStyles.mainContainer}>
                 <Text style={homeStyles.title}>Get Started</Text>
 
                 <View style={homeStyles.groupContainer}>
@@ -87,12 +89,6 @@ export const HomeScreen = (): JSX.Element => {
 };
 
 const useStyles = makeStyles(() => ({
-    layout: {
-        height: "100%",
-        width: "100%",
-        backgroundColor: "black",
-        zIndex: 0,
-    },
     column: {
         display: 'flex',
         flexDirection: 'column',
@@ -101,21 +97,6 @@ const useStyles = makeStyles(() => ({
     image: {
         position: "absolute",
         zIndex: 0,
-    },
-    mainContainer: {
-        backgroundColor: COLORS.BLACK,
-        borderTopEndRadius: 20,
-        borderTopStartRadius: 20,
-        zIndex: 1,
-        paddingVertical: '5%',
-        paddingHorizontal: '5%',
-        height: '100%',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        position: 'absolute',
-        bottom: 0,
     },
     title: {
         fontFamily: "Poppins",

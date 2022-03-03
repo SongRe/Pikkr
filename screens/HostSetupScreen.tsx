@@ -1,6 +1,6 @@
 import { Formik } from 'formik';
 import * as React from 'react';
-import { Text, View, Image, TextInput } from 'react-native';
+import { Text, View, Image, TextInput, TouchableOpacity, ListRenderItem } from 'react-native';
 import { Button, makeStyles, } from 'react-native-elements';
 import { COLORS } from '../constants/Colors';
 import { SCREENS } from './constants';
@@ -10,41 +10,77 @@ import { BackIcon } from '../components/Icons';
 import { FlatGrid } from 'react-native-super-grid';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { selectedGenresState } from './../state/atoms/atoms';
-import SelectableGrid from 'react-native-selectable-grid';
+import { getDatabase, ref, onValue, set } from 'firebase/database';
+import { generalStyles } from './../constants/Styles';
+import { Genre, GenreItem } from '../constants/Types';
+import { FlatList } from 'react-native-gesture-handler';
 
 //TODO: setup selectable grid for genres and update the atom accordingly
 //TODO: Setup async api call for movie data objects
 //TODO: Typing for the movie data objects that come in
-const sampleData = [{ label: 'Action' }, { label: 'Horror' }, { label: 'Family' }, { label: 'Comedy' }]
 
-//TODO: Remove any typing 
+const DATA = [
+    {
+        id: "id_1",
+        title: "First Item",
+    },
+    {
+        id: "id_2",
+        title: "Second Item",
+    },
+    {
+        id: "id_3",
+        title: "Third Item",
+    },
+];
+
 export const HostSetupScreen = () => {
     const setupStyles = useStyles();
+    const genStyles = generalStyles();
     const nav = useNavigation();
 
     const [selectedGenres, setSelectedGenres] = useRecoilState(selectedGenresState);
 
-    // const addGenre = (genre: any) => {
-    //     if(selectedGenres.indexOf(genre) === -1) { //if this genre isn't in selectedGenres
-    //         setSelectedGenres((oldSelectedGenres: any) => [
-    //             ...oldSelectedGenres,
-    //             genre
-    //         ])
-    //     } else {
-    //         const newList = removeItemAtIndex(selectedGenres, selectedGenres.indexOf(genre));
-    //         setSelectedGenres(newList);
-    //     }
-    //     return genre;
-    // }
+    const Item = (props: GenreItem) => {
+        return (
+            <TouchableOpacity onPress={props.onPress} style={[setupStyles.genreItem, { backgroundColor: props.backgroundColor }]}>
+                <Text style={[setupStyles.title, { color: props.textColor }]}>{props.genre.title}</Text>
+            </TouchableOpacity>
+        )
+    }
+
+    const renderItem: ListRenderItem<Genre> = ({ item }) => {
+        const backgroundColor = (selectedGenres.includes(item)) ? COLORS.DARK_GREY : COLORS.LIGHT_GREY;
+        const textColor = COLORS.GENRE_WHITE;
+        return (
+            <Item
+                genre={item}
+                onPress={() => {
+                    console.log('genre pressed: ', item);
+                    const selected = Object.assign([], selectedGenres);
+                    if (selectedGenres.includes(item)) {
+                        selected.splice(selected.indexOf(item), 1);
+                        setSelectedGenres(selected);
+                    } else {
+                        selected.push(item);
+                        setSelectedGenres(selected); // this is probably redundant
+                    }
+
+                }}
+                backgroundColor={backgroundColor}
+                textColor={textColor}
+            />
+        )
+    }
 
     const [numError, setNumError] = useState(false);
     return (
-        <View style={setupStyles.layout}>
+        <View style={genStyles.layout}>
             <Image
                 style={setupStyles.image}
                 source={require("../assets/images/PikkrBackgroundVector.png")}
             />
-            <View style={setupStyles.mainContainer}>
+            <View style={genStyles.mainContainer}>
                 <View style={setupStyles.iconContainer}>
                     <BackIcon onPress={() => { nav.goBack() }} size={40} color={COLORS.WHITE} />
                 </View>
@@ -55,8 +91,13 @@ export const HostSetupScreen = () => {
                         initialValues={{ code: "" }}
                         onSubmit={(values) => {
                             console.log(values);
+                            const db = getDatabase();
+                            const reference = ref(db, 'test/' + values.code);
+                            set(reference, {
+                                test: values,
+                            });
                             //this is where we will validate the people input, and navigate / display error accordingly
-                            nav.navigate(SCREENS.HOST_WAIT)
+                            nav.navigate(SCREENS.HOST_WAIT);
                         }}
                     >
                         {({ handleChange, handleBlur, handleSubmit, values }) => (
@@ -84,6 +125,12 @@ export const HostSetupScreen = () => {
                                 <View style={setupStyles.groupContainer}>
                                     <Text style={setupStyles.subtitle}>Preference</Text>
                                     <Text style={setupStyles.text}>Filter by genre:</Text>
+                                    <FlatList
+                                        data={DATA}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item) => { return item.id; }}
+                                        extraData={selectedGenres}
+                                    />
                                 </View>
                                 <Button titleStyle={setupStyles.buttonText}
                                     title='Create'
@@ -109,12 +156,6 @@ function removeItemAtIndex(arr: [], index: number) {
 }
 
 const useStyles = makeStyles(() => ({
-    layout: {
-        height: "100%",
-        width: "100%",
-        backgroundColor: "black",
-        zIndex: 0,
-    },
     column: {
         display: 'flex',
         flexDirection: 'column',
@@ -128,21 +169,6 @@ const useStyles = makeStyles(() => ({
     image: {
         position: "absolute",
         zIndex: 0,
-    },
-    mainContainer: {
-        backgroundColor: COLORS.BLACK,
-        borderTopEndRadius: 20,
-        borderTopStartRadius: 20,
-        zIndex: 1,
-        paddingVertical: '5%',
-        paddingHorizontal: '4%',
-        height: '100%',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        position: 'absolute',
-        bottom: 0,
     },
 
     formContainer: {
@@ -164,6 +190,14 @@ const useStyles = makeStyles(() => ({
         fontFamily: 'Poppins',
         color: COLORS.WHITE,
         fontSize: 14,
+    },
+    genreText: {
+        fontFamily: 'Poppins',
+        color: COLORS.WHITE,
+        fontSize: 14,
+    },
+    genreItem: {
+
     },
 
     errorText: {

@@ -1,5 +1,5 @@
 import { selector } from "recoil";
-import { selectedGenresState } from './../atoms/atoms';
+import { selectedGenresState } from '../atoms/atoms';
 
 //Sample aync selector for other contributors
 
