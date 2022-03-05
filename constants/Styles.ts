@@ -8,6 +8,11 @@ export const generalStyles = makeStyles({
         backgroundColor: "black",
         zIndex: 0,
     },
+    bkgImg: {
+        position: 'absolute',
+        zIndex: 0,
+        top: 0,
+    },
     mainContainer: {
         backgroundColor: COLORS.BLACK,
         borderTopEndRadius: 20,
