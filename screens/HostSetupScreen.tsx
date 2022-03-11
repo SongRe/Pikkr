@@ -9,12 +9,12 @@ import { useCallback, useState } from 'react';
 import { BackIcon } from '../components/Icons';
 import { FlatGrid } from 'react-native-super-grid';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { selectedGenresState } from './../state/atoms/atoms';
+import { roomNumberState, selectedGenresState } from './../state/atoms/atoms';
 import { getDatabase, ref, onValue, set } from 'firebase/database';
 import { generalStyles } from './../constants/Styles';
 import { Genre, GenreItem, Room } from '../constants/Types';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
-import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { doc, getDoc, getFirestore, setDoc } from 'firebase/firestore';
 import { useEffect } from 'react';
 import { movieKey } from './../constants/Keys';
 
@@ -32,6 +32,7 @@ export const HostSetupScreen = () => {
     const [numError, setNumError] = useState(false);
     const [error, setError] = useState(null);
     const [selectedGenres, setSelectedGenres] = useRecoilState(selectedGenresState);
+    const setRoomNumber = useSetRecoilState(roomNumberState);
 
     const fetchGenres = (async () => {
         let response: any = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${movieKey}&language=en-US`);
@@ -96,7 +97,7 @@ export const HostSetupScreen = () => {
                 <ScrollView showsVerticalScrollIndicator={false} style={{ borderRadius: 20 }}>
                     <Formik
                         initialValues={{ size: "" }}
-                        onSubmit={(values) => {
+                        onSubmit={async (values) => {
                             if(!values.size || values.size === "") {
                                 setNumError(true);
                             } else {
@@ -108,7 +109,8 @@ export const HostSetupScreen = () => {
                                         isVoting: false,
                                         selectedGenres: selectedGenres,
                                     }
-                                    createRoom(room);
+                                    const rmCode = createRoom(room);
+                                    setRoomNumber(await rmCode);
 
                                 } catch (error: any) {
                                     console.log(error);
@@ -177,15 +179,21 @@ export const HostSetupScreen = () => {
 }
 
 
-export const createRoom = (room: Room) => {
+export const createRoom = async (room: Room) => {
     const firestore = getFirestore();
-    const room_code = generateRoomCode();
-    setDoc(doc(firestore, "Rooms", `${room_code}`), room);
+    const roomCode = await generateRoomCode();
+    setDoc(doc(firestore, "Rooms", `${roomCode}`), room);
+    return roomCode;
 }
 
-export const generateRoomCode = () => {
-    // this will be a random number for now, but we will need to check if the room exists on firestore
-    const roomNum = Math.round(Math.random() * 99999) // number between 0 and 99999
+export const generateRoomCode = async () => {
+    const db = getFirestore();
+    let roomNum = Math.round(Math.random() * 99999) // number between 0 and 99999
+    let docSnap = await getDoc(doc(db, "Rooms", `${roomNum}`));
+    while(docSnap.exists()) {
+        let roomNum = Math.round(Math.random() * 99999) // number between 0 and 99999
+        docSnap = await getDoc(doc(db, "Rooms", `${roomNum}`));
+    }
     return roomNum;
 }
 

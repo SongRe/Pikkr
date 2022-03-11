@@ -5,4 +5,9 @@ export const selectedGenresState = atom<Genre[]>({
     key: 'selectedGenres',
     default: [],
 
+});
+
+export const roomNumberState = atom<Number>({
+    key: 'roomNumber',
+    default: 0,
 })
