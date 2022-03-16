@@ -7,7 +7,7 @@ import { generalStyles } from '../constants/Styles';
 import { Button, makeStyles } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/core';
 import { useRecoilValue } from 'recoil';
-import { roomNumberState } from '../state/atoms/atoms';
+import { currentRoomState, roomNumberState } from '../state/atoms/atoms';
 
 //TODO: Make this page.
 
@@ -17,9 +17,9 @@ export const HostWaitScreen = () => {
     const nav = useNavigation();
 
     const handleSubmit = () => {
-        
-    }
 
+    }
+    const room = useRecoilValue(currentRoomState);
     const roomCode = useRecoilValue(roomNumberState);
 
     return (
@@ -32,12 +32,28 @@ export const HostWaitScreen = () => {
                 <View style={waitStyles.iconContainer}>
                     <BackIcon onPress={() => { nav.goBack() }} size={40} color={COLORS.WHITE} />
                 </View>
-                <Text style={genStyles.title}>Waiting Room</Text>
-                <View style={genStyles.groupContainer}>
-                    <Text style={genStyles.subtitle}>Your Room Code:</Text>
+                <Text style={genStyles.title}>Your Room</Text>
+                <View style={waitStyles.dataContainer}>
+                    <View style={waitStyles.dataRow}>
+                        <Text style={waitStyles.subtitle}>Genres</Text>
+                        <Text style={waitStyles.subtitle}>In Room</Text>
+                        <Text style={waitStyles.subtitle}>People Set</Text>
+                    </View>
+                    <View style={waitStyles.dataRow}>
+                        <Text style={waitStyles.dataText}>{room.selectedGenres?.length}</Text>
+                        <Text style={waitStyles.dataText}>{room.connectedUsers?.length}</Text>
+                        <Text style={waitStyles.dataText}>{room.size}</Text>
+                    </View>
+                    <View style={{
+                        marginTop: '5%',
+                        borderBottomWidth: 1,
+                        borderBottomColor: COLORS.WHITE
+                    }} />
+                </View>
+                <View style={waitStyles.codeContainer}>
+                    <Text style={waitStyles.subtitle}>Your Room Code:</Text>
                     <Text style={genStyles.title}>{roomCode}</Text>
                 </View>
-                <View style={genStyles.groupContainer}><Text>Group 2</Text></View>
                 <Button titleStyle={waitStyles.buttonText}
                     title='Start'
                     buttonStyle={waitStyles.createButton}
@@ -61,9 +77,18 @@ const useStyles = makeStyles({
         left: '7%',
     },
     createButton: {
-        borderRadius: 20    ,
-        width: '100%',
-
+        borderRadius: 20,
+    },
+    codeContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        backgroundColor: COLORS.DARK_GREY,
+        paddingHorizontal: '5%',
+        paddingVertical: '7%',
+        borderRadius: 20,
+        marginTop: 10,
+        marginHorizontal: '5%',
     },
 
     buttonText: {
@@ -71,7 +96,6 @@ const useStyles = makeStyles({
         fontSize: 14,
         color: COLORS.WHITE
     },
-
     createButtonContainer: {
         marginTop: '5%',
         position: 'absolute',
@@ -79,8 +103,25 @@ const useStyles = makeStyles({
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf: 'center',
-        width: '35%',
+        padding: '2%'
     },
+    dataText: {
+        fontSize: 24,
+        fontFamily: 'Poppins',
+        color: COLORS.GENRE_PURPLE,
+        textAlign: 'center',
+        flex: 1,
+    },
+    subtitle: {
+        fontFamily: "Poppins",
+        color: COLORS.WHITE,
+        fontSize: 24,
+        flex: 1,
+        alignContent: 'center',
+        textAlign: 'center',
+    },
+    dataContainer: { display: 'flex', flexDirection: 'column', width: '100%', alignContent: 'center', justifyContent: 'center', marginTop: '2%' },
+    dataRow: { display: 'flex', flexDirection: 'row', alignContent: 'center', justifyContent: 'center', marginTop: '2%' },
 })
 
 

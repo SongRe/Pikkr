@@ -9,7 +9,7 @@ import { useCallback, useState } from 'react';
 import { BackIcon } from '../components/Icons';
 import { FlatGrid } from 'react-native-super-grid';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { roomNumberState, selectedGenresState } from './../state/atoms/atoms';
+import { currentRoomState, roomNumberState, selectedGenresState } from './../state/atoms/atoms';
 import { getDatabase, ref, onValue, set } from 'firebase/database';
 import { generalStyles } from './../constants/Styles';
 import { Genre, GenreItem, Room } from '../constants/Types';
@@ -33,6 +33,7 @@ export const HostSetupScreen = () => {
     const [error, setError] = useState(null);
     const [selectedGenres, setSelectedGenres] = useRecoilState(selectedGenresState);
     const setRoomNumber = useSetRecoilState(roomNumberState);
+    const setRoom = useSetRecoilState(currentRoomState);
 
     const fetchGenres = (async () => {
         let response: any = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${movieKey}&language=en-US`);
@@ -111,6 +112,7 @@ export const HostSetupScreen = () => {
                                     }
                                     const rmCode = createRoom(room);
                                     setRoomNumber(await rmCode);
+                                    setRoom(room);
 
                                 } catch (error: any) {
                                     console.log(error);

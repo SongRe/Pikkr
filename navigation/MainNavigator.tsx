@@ -28,8 +28,9 @@ export const HomeNavigator = () => {
                 headerShown: false,
             }}>
                 <Stack.Screen name={SCREENS.HOME} component={HomeScreen} options={{headerShown: false, }} />
-                <Stack.Screen name={SCREENS.HOST_SETUP} component={HostSetupScreen} options={{headerShown: false, }}/>
                 <Stack.Screen name={SCREENS.HOST_WAIT} component={HostWaitScreen} options={{headerShown: false, }}/>
+                <Stack.Screen name={SCREENS.HOST_SETUP} component={HostSetupScreen} options={{headerShown: false, }}/>
+
             </Stack.Navigator>
         </NavigationContainer>
 
