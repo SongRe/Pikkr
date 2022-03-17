@@ -2,7 +2,7 @@ import * as React from 'react';
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SCREENS } from '../screens/constants';
-import { HomeScreen, HostSetupScreen, HostWaitScreen } from './../screens/index';
+import { HomeScreen, HostSetupScreen, HostWaitScreen, GuestWaitScreen } from './../screens/index';
 import { StatusBar } from 'expo-status-bar';
 
 export type RootStackParamList = {
@@ -30,7 +30,7 @@ export const HomeNavigator = () => {
                 <Stack.Screen name={SCREENS.HOME} component={HomeScreen} options={{headerShown: false, }} />
                 <Stack.Screen name={SCREENS.HOST_WAIT} component={HostWaitScreen} options={{headerShown: false, }}/>
                 <Stack.Screen name={SCREENS.HOST_SETUP} component={HostSetupScreen} options={{headerShown: false, }}/>
-
+                <Stack.Screen name={SCREENS.GUEST_WAIT} component={GuestWaitScreen} options={{headerShown: false,}}/>
             </Stack.Navigator>
         </NavigationContainer>
 

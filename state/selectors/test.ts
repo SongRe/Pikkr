@@ -1,8 +1,9 @@
 import { selector } from "recoil";
 import { selectedGenresState } from '../atoms/atoms';
+import { getFirestore } from 'firebase/firestore';
 
 //Sample aync selector for other contributors
-
+const db = getFirestore
 
 //change name to "start room query .. or something"
 export const currentUserNameQuery = selector({
@@ -14,6 +15,8 @@ export const currentUserNameQuery = selector({
         return response;
     },
 });
+
+
 
 /*
     the object, {

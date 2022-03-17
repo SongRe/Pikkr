@@ -47,6 +47,10 @@ export const HostSetupScreen = () => {
         }
     });
 
+    useEffect(() => {
+        fetchGenres();
+    }, []);
+
     const Item = (props: GenreItem) => {
         return (
             <TouchableOpacity onPress={props.onPress} style={[setupStyles.genreItem, { borderColor: props.borderColor }]}>
@@ -78,11 +82,6 @@ export const HostSetupScreen = () => {
             />
         )
     }
-
-    useEffect(() => {
-        fetchGenres();
-    }, []);
-
         return (
         <View style={genStyles.layout}>
             <Image
@@ -119,9 +118,7 @@ export const HostSetupScreen = () => {
                                     setError(error.message);
                                 }
                                 nav.navigate(SCREENS.HOST_WAIT);
-                            }
- 
-                            //this is where we will validate the people input, and navigate / display error accordingly
+                            } 
                         }}
                     >
                         {({ handleChange, handleBlur, handleSubmit, values }) => (
@@ -133,7 +130,7 @@ export const HostSetupScreen = () => {
                                         <Text style={genStyles.errorText}>{error ? error : ''}</Text>
                                         <View style={setupStyles.codeContainer}>
                                             <TextInput
-                                                maxLength={4} // code length    
+                                                maxLength={4} // input length  
                                                 onChangeText={handleChange("size")}
                                                 onBlur={handleBlur("size")}
                                                 autoCapitalize='characters'
@@ -146,7 +143,7 @@ export const HostSetupScreen = () => {
                                     </View>
                                 </View>
 
-                                <View style={genStyles.groupContainer}>
+                                <View style={setupStyles.genreContainer}>
                                     <Text style={genStyles.subtitle}>Preference</Text>
                                     <Text style={genStyles.text}>Filter by genre:</Text>
                                     {isLoading ? <ActivityIndicator size={'small'} /> : <FlatList
@@ -155,12 +152,12 @@ export const HostSetupScreen = () => {
                                         keyExtractor={(item) => { return item.id; }}
                                         extraData={selectedGenres}
                                         showsVerticalScrollIndicator={false}
-                                        numColumns={10}
-                                        style={{ display: 'flex', height: '11rem' }}
+                                        numColumns={5}
+                                        style={{ display: 'flex', height: '15rem', flexGrow: 0, }}
                                     />
                                     }
-
                                 </View>
+                                <View style={{padding: '10%'}}/>
                                 <Button titleStyle={setupStyles.buttonText}
                                     title='Create'
                                     buttonStyle={setupStyles.createButton}
@@ -170,11 +167,10 @@ export const HostSetupScreen = () => {
                                     }}
                                 />
                             </View>
+                            
                         )}
                     </Formik>
                 </ScrollView>
-
-
             </View>
         </View>
     )
@@ -216,10 +212,8 @@ const useStyles = makeStyles(() => ({
     },
 
     formContainer: {
-        height: '97%',
+        height: '100%',
     },
-
-
     genreText: {
         fontFamily: 'Poppins',
         color: COLORS.WHITE,
@@ -230,7 +224,6 @@ const useStyles = makeStyles(() => ({
         padding: '1%',
         borderWidth: 2,
         alignItems: 'center',
-        flex: 1,
         marginRight: '0.5%',
         marginBottom: '0.5%',
     },
@@ -252,9 +245,9 @@ const useStyles = makeStyles(() => ({
     },
 
     createButton: {
-        borderRadius: 20    ,
+        borderRadius: 20,
         width: '100%',
-
+        marginTop: '20%',
     },
 
     buttonText: {
@@ -264,12 +257,24 @@ const useStyles = makeStyles(() => ({
     },
 
     createButtonContainer: {
-        marginTop: '5%',
         position: 'absolute',
-        bottom: 20,
+        bottom: 10,
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf: 'center',
         width: '35%',
+        zIndex: 0,
+    },
+    genreContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        backgroundColor: COLORS.DARK_GREY,
+        paddingHorizontal: '5%',
+        paddingVertical: '7%',
+        borderRadius: 20,
+        height: '100%',
+        flex: 1,
+        marginTop: 10,
     },
 }));

@@ -7,16 +7,29 @@ import { COLORS } from "../constants/Colors";
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
 import { generalStyles } from './../constants/Styles';
+import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { getRoomByCode } from './../utils/utils';
+import { useSetRecoilState } from 'recoil';
+import { currentRoomState, roomNumberState } from "../state/atoms";
 
-export const HomeScreen = (): JSX.Element => {
+export const HomeScreen = () => {
     const nav = useNavigation();
     const homeStyles = useStyles();
     const genStyles = generalStyles();
 
     const [codeError, setCodeError] = useState(false);
+    const setRoom = useSetRecoilState(currentRoomState);
+    const setRoomNumber = useSetRecoilState(roomNumberState);
 
-    const handleSubmit = () => {
-        nav.navigate(SCREENS.HOST_SETUP);
+    const handleCode = async (values: any) => {
+        const res = await getRoomByCode(values.code);
+        if(res != null) {
+            setRoom(res);
+            setRoomNumber(values.code);
+            setCodeError(false);
+        } else {
+            setCodeError(true);
+        }
     };
 
     return (
@@ -31,10 +44,9 @@ export const HomeScreen = (): JSX.Element => {
                     <View style={genStyles.groupContainer}>
                         <Formik
                             initialValues={{ code: "" }}
-                            onSubmit={(values) => {
-                                console.log(values);
+                            onSubmit={async (values) => {
+                                handleCode(values.code);
                                 //this is where we will validate the code, and navigate / display error accordingly
-                                nav.navigate(SCREENS.HOST_SETUP)
                             }}
                         >
                             {({ handleChange, handleBlur, handleSubmit, values }) => (
@@ -44,7 +56,7 @@ export const HomeScreen = (): JSX.Element => {
                                     <Text style={genStyles.errorText}>{codeError ? 'Room does not exist' : ''}</Text>
                                     <View style={homeStyles.codeContainer}>
                                         <TextInput
-                                            maxLength={4} // code length    
+                                            maxLength={5} // code length    
                                             onChangeText={handleChange("code")}
                                             onBlur={handleBlur("code")}
                                             autoCapitalize='characters'
