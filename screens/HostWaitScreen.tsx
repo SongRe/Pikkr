@@ -6,8 +6,10 @@ import EditScreenInfo from '../components/EditScreenInfo';
 import { generalStyles } from '../constants/Styles';
 import { Button, makeStyles } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/core';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { currentRoomState, roomNumberState } from '../state/atoms/atoms';
+import { onSnapshot, getFirestore, doc } from 'firebase/firestore';
+import { Room } from '../constants/Types';
 
 //TODO: Make this page.
 
@@ -19,8 +21,25 @@ export const HostWaitScreen = () => {
     const handleSubmit = () => {
 
     }
-    const room = useRecoilValue(currentRoomState);
+    const [room, setRoom] = useRecoilState(currentRoomState);
     const roomCode = useRecoilValue(roomNumberState);
+    const db = getFirestore();
+
+    const sub = onSnapshot(doc(db, "Rooms", `${roomCode}`), (doc) => {
+        console.log(doc);
+        const document = doc.data();
+        if(document) {
+            const room: Room = {
+                size: document.size,
+                isVoting: document.isVoting,
+                selectedGenres: document.selectedGenres ? document.selectedGenres : null,
+                connectedUsers: document.connectedUsers ? document.connectedUsers : null,
+            }
+            setRoom(room);
+        } else {
+            console.log('error');
+        }
+    });
 
     return (
         <View style={genStyles.layout}>

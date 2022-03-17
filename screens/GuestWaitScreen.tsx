@@ -29,39 +29,25 @@ export const GuestWaitScreen = () => {
                 source={require("../assets/images/PikkrBackgroundVector.png")}
             />
             <View style={genStyles.mainContainer}>
+
                 <View style={waitStyles.iconContainer}>
                     <BackIcon onPress={() => { nav.goBack() }} size={40} color={COLORS.WHITE} />
                 </View>
-                <Text style={genStyles.title}>Your Room</Text>
-                <View style={waitStyles.dataContainer}>
-                    <View style={waitStyles.dataRow}>
-                        <Text style={waitStyles.subtitle}>Genres</Text>
-                        <Text style={waitStyles.subtitle}>In Room</Text>
-                        <Text style={waitStyles.subtitle}>People Set</Text>
-                    </View>
-                    <View style={waitStyles.dataRow}>
-                        <Text style={waitStyles.dataText}>{room.selectedGenres?.length}</Text>
-                        <Text style={waitStyles.dataText}>{room.connectedUsers?.length}</Text>
-                        <Text style={waitStyles.dataText}>{room.size}</Text>
-                    </View>
-                    <View style={{
-                        marginTop: '5%',
-                        borderBottomWidth: 1,
-                        borderBottomColor: COLORS.WHITE
-                    }} />
-                </View>
+                <Text style={genStyles.title}>In a Room</Text>
+                <Image source={require('../assets/images/pikkr-guest-wait.png')} />
                 <View style={waitStyles.codeContainer}>
                     <Text style={waitStyles.subtitle}>Your Room Code:</Text>
                     <Text style={genStyles.title}>{roomCode}</Text>
                 </View>
-                <Button titleStyle={waitStyles.buttonText}
-                    title='Start'
-                    buttonStyle={waitStyles.createButton}
-                    containerStyle={waitStyles.createButtonContainer}
-                    onPress={() => {
-                        handleSubmit();
-                    }}
-                />
+
+                <View style={genStyles.groupContainer}>
+                    <Text style={genStyles.subtitle}>
+                        You have successfully joined a room!
+                    </Text>
+                    <Text style={genStyles.text}>
+                        Please wait until the room owner begins the voting process.
+                    </Text>
+                </View>
 
 
 

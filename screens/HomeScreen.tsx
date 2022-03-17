@@ -8,7 +8,7 @@ import { Formik } from "formik";
 import { useEffect, useState } from "react";
 import { generalStyles } from './../constants/Styles';
 import { doc, getDoc, getFirestore } from "firebase/firestore";
-import { getRoomByCode } from './../utils/utils';
+import { getRoomByCode, incrementConnectedUsers } from './../utils/utils';
 import { useSetRecoilState } from 'recoil';
 import { currentRoomState, roomNumberState } from "../state/atoms";
 
@@ -27,6 +27,8 @@ export const HomeScreen = () => {
             setRoom(res);
             setRoomNumber(values.code);
             setCodeError(false);
+            nav.navigate(SCREENS.GUEST_WAIT);
+            incrementConnectedUsers(values.code); //1 more connected user
         } else {
             setCodeError(true);
         }

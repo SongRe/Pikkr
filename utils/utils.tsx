@@ -1,6 +1,8 @@
 
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import { doc, getDoc, getFirestore, increment, setDoc, updateDoc } from 'firebase/firestore';
 import { Room } from '../constants/Types';
+import { useRecoilValue } from 'recoil';
+import { currentRoomState } from '../state/atoms';
 
 
 export const getRoomByCode = async (code: string) => {
@@ -20,4 +22,12 @@ export const getRoomByCode = async (code: string) => {
     } else {
         return null;
     }
+}
+
+export const incrementConnectedUsers = async (code: string) => {
+    const db = getFirestore();
+    const roomRef = doc(db, "Rooms", `${code}`);
+    await updateDoc(roomRef, {
+        connectedUsers: increment(1),
+    });
 }
