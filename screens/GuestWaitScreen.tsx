@@ -8,19 +8,35 @@ import { Button, makeStyles } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/core';
 import { useRecoilValue } from 'recoil';
 import { currentRoomState, roomNumberState } from '../state/atoms/atoms';
+import { doc, onSnapshot, getFirestore } from 'firebase/firestore';
+import { Room } from '../constants/Types';
+import { SCREENS } from './constants';
 
-//TODO: Make this page.
+//TODO: need listener for isVoting: true
+
 
 export const GuestWaitScreen = () => {
     const genStyles = generalStyles();
     const waitStyles = useStyles();
     const nav = useNavigation();
-
-    const handleSubmit = () => {
-
-    }
     const room = useRecoilValue(currentRoomState);
     const roomCode = useRecoilValue(roomNumberState);
+
+    const db = getFirestore();
+    // listener for when the host starts the voting
+    const unsub = onSnapshot(doc(db, "Rooms", `${roomCode}`), (doc) => {
+        console.log(doc);
+        const document = doc.data();
+        if(document) {
+            if(document.isVoting) {
+                nav.navigate(SCREENS.VOTING);
+                unsub();
+            }
+        } else {
+            console.log('error');
+        }
+    });
+
 
     return (
         <View style={genStyles.layout}>
@@ -41,16 +57,13 @@ export const GuestWaitScreen = () => {
                 </View>
 
                 <View style={genStyles.groupContainer}>
-                    <Text style={genStyles.subtitle}>
+                    <Text style={waitStyles.subtitle}>
                         You have successfully joined a room!
                     </Text>
-                    <Text style={genStyles.text}>
+                    <Text style={waitStyles.text}>
                         Please wait until the room owner begins the voting process.
                     </Text>
                 </View>
-
-
-
             </View>
         </View>
     )
@@ -102,6 +115,14 @@ const useStyles = makeStyles({
         fontFamily: "Poppins",
         color: COLORS.WHITE,
         fontSize: 24,
+        flex: 1,
+        alignContent: 'center',
+        textAlign: 'center',
+    },
+    text: {
+        fontFamily: "Poppins",
+        color: COLORS.WHITE,
+        fontSize: 11,
         flex: 1,
         alignContent: 'center',
         textAlign: 'center',

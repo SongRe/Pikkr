@@ -24,7 +24,7 @@ export interface Genre {
 export interface Room {
     size: number;
     isVoting: false;
-    connectedUsers?: User[];
+    connectedUsers: number;
     selectedGenres?: Genre[];
 }
 

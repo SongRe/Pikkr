@@ -2,7 +2,6 @@ import * as React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { BackIcon } from '../components/Icons';
 import { COLORS } from '../constants/Colors';
-import EditScreenInfo from '../components/EditScreenInfo';
 import { generalStyles } from '../constants/Styles';
 import { Button, makeStyles } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/core';
@@ -10,22 +9,27 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { currentRoomState, roomNumberState } from '../state/atoms/atoms';
 import { onSnapshot, getFirestore, doc } from 'firebase/firestore';
 import { Room } from '../constants/Types';
-
-//TODO: Make this page.
+import { SCREENS } from './constants';
+import { updateRoomField } from './../utils/utils';
 
 export const HostWaitScreen = () => {
     const genStyles = generalStyles();
     const waitStyles = useStyles();
     const nav = useNavigation();
 
-    const handleSubmit = () => {
 
-    }
     const [room, setRoom] = useRecoilState(currentRoomState);
     const roomCode = useRecoilValue(roomNumberState);
     const db = getFirestore();
 
-    const sub = onSnapshot(doc(db, "Rooms", `${roomCode}`), (doc) => {
+    const handleSubmit = () => {
+        unsub(); //unsubscribe from the room update count
+        updateRoomField(roomCode.toString(), 'isVoting', true)
+        nav.navigate(SCREENS.VOTING);
+    }
+
+    // call unsub() to unsubscribe
+    const unsub = onSnapshot(doc(db, "Rooms", `${roomCode}`), (doc) => {
         console.log(doc);
         const document = doc.data();
         if(document) {
@@ -75,6 +79,7 @@ export const HostWaitScreen = () => {
                 </View>
                 <Button titleStyle={waitStyles.buttonText}
                     title='Start'
+                    disabled={room.connectedUsers < room.size}
                     buttonStyle={waitStyles.createButton}
                     containerStyle={waitStyles.createButtonContainer}
                     onPress={() => {

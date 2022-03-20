@@ -3,7 +3,6 @@ import { View } from "react-native"
 import { Button, makeStyles } from 'react-native-elements';
 import { COLORS } from "../constants/Colors";
 
-//TODO: add typing for genre object
 
 interface GenreButtonProps {
     onPress: () => {};

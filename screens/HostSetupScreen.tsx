@@ -5,22 +5,16 @@ import { Button, makeStyles, } from 'react-native-elements';
 import { COLORS } from '../constants/Colors';
 import { SCREENS } from './constants';
 import { useNavigation } from '@react-navigation/core';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { BackIcon } from '../components/Icons';
-import { FlatGrid } from 'react-native-super-grid';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { currentRoomState, roomNumberState, selectedGenresState } from './../state/atoms/atoms';
-import { getDatabase, ref, onValue, set } from 'firebase/database';
 import { generalStyles } from './../constants/Styles';
 import { Genre, GenreItem, Room } from '../constants/Types';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
-import { doc, getDoc, getFirestore, setDoc } from 'firebase/firestore';
 import { useEffect } from 'react';
 import { movieKey } from './../constants/Keys';
-
-//TODO: setup selectable grid for genres and update the atom accordingly
-//TODO: Setup async api call for movie data objects
-//TODO: Typing for the movie data objects that come in
+import { createRoom } from '../utils/utils';
 
 let DATA: Genre[] = [];
 export const HostSetupScreen = () => {
@@ -35,7 +29,7 @@ export const HostSetupScreen = () => {
     const setRoomNumber = useSetRecoilState(roomNumberState);
     const setRoom = useSetRecoilState(currentRoomState);
 
-    const fetchGenres = (async () => {
+    const fetchGenres = async () => {
         let response: any = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${movieKey}&language=en-US`);
         if (response.ok) {
             response = await response.json();
@@ -45,7 +39,7 @@ export const HostSetupScreen = () => {
         } else {
             setError(response.message);
         }
-    });
+    };
 
     useEffect(() => {
         fetchGenres();
@@ -108,6 +102,7 @@ export const HostSetupScreen = () => {
                                         size: rmSize,
                                         isVoting: false,
                                         selectedGenres: selectedGenres,
+                                        connectedUsers: 0,
                                     }
                                     const rmCode = createRoom(room);
                                     setRoomNumber(await rmCode);
@@ -174,25 +169,6 @@ export const HostSetupScreen = () => {
             </View>
         </View>
     )
-}
-
-
-export const createRoom = async (room: Room) => {
-    const firestore = getFirestore();
-    const roomCode = await generateRoomCode();
-    setDoc(doc(firestore, "Rooms", `${roomCode}`), room);
-    return roomCode;
-}
-
-export const generateRoomCode = async () => {
-    const db = getFirestore();
-    let roomNum = Math.round(Math.random() * 99999) // number between 0 and 99999
-    let docSnap = await getDoc(doc(db, "Rooms", `${roomNum}`));
-    while(docSnap.exists()) {
-        let roomNum = Math.round(Math.random() * 99999) // number between 0 and 99999
-        docSnap = await getDoc(doc(db, "Rooms", `${roomNum}`));
-    }
-    return roomNum;
 }
 
 const useStyles = makeStyles(() => ({

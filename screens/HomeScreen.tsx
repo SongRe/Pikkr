@@ -47,7 +47,8 @@ export const HomeScreen = () => {
                         <Formik
                             initialValues={{ code: "" }}
                             onSubmit={async (values) => {
-                                handleCode(values.code);
+                                console.log('on submit', values);
+                                await handleCode(values);
                                 //this is where we will validate the code, and navigate / display error accordingly
                             }}
                         >

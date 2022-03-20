@@ -5,7 +5,6 @@ export enum SCREENS {
     GUEST_WAIT = 'GuestWait',
     VOTING = 'Voting',
     ENDING = 'Ending',
-    
 }
 
 
