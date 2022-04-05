@@ -24,13 +24,12 @@ export const HostWaitScreen = () => {
 
     const handleSubmit = () => {
         unsub(); //unsubscribe from the room update count
-        updateRoomField(roomCode.toString(), 'isVoting', true)
+        updateRoomField(roomCode.toString(), 'isVoting', true);
         nav.navigate(SCREENS.VOTING);
     }
 
     // call unsub() to unsubscribe
     const unsub = onSnapshot(doc(db, "Rooms", `${roomCode}`), (doc) => {
-        console.log(doc);
         const document = doc.data();
         if(document) {
             const room: Room = {
@@ -38,6 +37,8 @@ export const HostWaitScreen = () => {
                 isVoting: document.isVoting,
                 selectedGenres: document.selectedGenres ? document.selectedGenres : null,
                 connectedUsers: document.connectedUsers ? document.connectedUsers : null,
+                movies: document.movies ? document.movies : null,
+                movieVotes: document.movieVotes ? document.movieVotes : null,
             }
             setRoom(room);
         } else {
@@ -64,7 +65,7 @@ export const HostWaitScreen = () => {
                     </View>
                     <View style={waitStyles.dataRow}>
                         <Text style={waitStyles.dataText}>{room.selectedGenres?.length}</Text>
-                        <Text style={waitStyles.dataText}>{room.connectedUsers?.length}</Text>
+                        <Text style={waitStyles.dataText}>{room.connectedUsers}</Text>
                         <Text style={waitStyles.dataText}>{room.size}</Text>
                     </View>
                     <View style={{
@@ -86,9 +87,6 @@ export const HostWaitScreen = () => {
                         handleSubmit();
                     }}
                 />
-
-
-
             </View>
         </View>
     )

@@ -14,22 +14,23 @@ export const fetchGenres = (async () => {
     }
 });
 
-export const fetchMovies = async () => {
-    const selectedGenres = useRecoilValue(selectedGenresState);
+export const fetchMovies = async (selectedGenres: Genre[]) => {
     let request = `https://api.themoviedb.org/3/discover/movie?api_key=${movieKey}&language=en-US&include_adult=true&page=1&with_genres=`
     for(let i = 0; i < selectedGenres.length; i++) {
         let genre: Genre = selectedGenres[i];
-        request += `${genre}`
+        request += `${genre.name}`
         // want to add %2C between each genre
         if(i < selectedGenres.length - 1) {
             request += '%2C'
         }
     }
     let response: any = await fetch(request);
+    console.log(response);
     if(response.ok) {
         response = await response.json();
-        const movies = response.movies;
+        const movies = response.results;
         return movies;
-    } 
-    return null;
+    } else {
+        return response;
+    }
 };

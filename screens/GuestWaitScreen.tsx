@@ -12,9 +12,6 @@ import { doc, onSnapshot, getFirestore } from 'firebase/firestore';
 import { Room } from '../constants/Types';
 import { SCREENS } from './constants';
 
-//TODO: need listener for isVoting: true
-
-
 export const GuestWaitScreen = () => {
     const genStyles = generalStyles();
     const waitStyles = useStyles();
@@ -25,12 +22,11 @@ export const GuestWaitScreen = () => {
     const db = getFirestore();
     // listener for when the host starts the voting
     const unsub = onSnapshot(doc(db, "Rooms", `${roomCode}`), (doc) => {
-        console.log(doc);
         const document = doc.data();
         if(document) {
             if(document.isVoting) {
-                nav.navigate(SCREENS.VOTING);
                 unsub();
+                nav.navigate(SCREENS.VOTING);
             }
         } else {
             console.log('error');

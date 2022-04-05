@@ -1,8 +1,6 @@
 
 import { doc, getDoc, getFirestore, increment, setDoc, updateDoc } from 'firebase/firestore';
-import { Room } from '../constants/Types';
-import { useRecoilValue } from 'recoil';
-import { currentRoomState } from '../state/atoms';
+import { Movie, Room } from '../constants/Types';
 
 
 export const getRoomByCode = async (code: string) => {
@@ -16,6 +14,8 @@ export const getRoomByCode = async (code: string) => {
             isVoting: document.isVoting,
             selectedGenres: document.selectedGenres ? document.selectedGenres : null,
             connectedUsers: document.connectedUsers ? document.connectedUsers : null,
+            movies: document.movies ? document.movies : null,
+            movieVotes: document.movieVotes ? document.movieVotes : null,
         }
         return room;
     } else {
@@ -36,13 +36,15 @@ export const updateRoom = async (code: string, room: Room) => {
         isVoting: room.isVoting,
         selectedGenres: room.selectedGenres ? room.selectedGenres : [],
         connectedUsers: room.connectedUsers,
+        movies: room.movies,
+        movieVotes: room.movieVotes,
     });
     return res;
 }
 
 /**
- * Update the room with a new room object
- * @param code 
+ * Update a room field
+ * @param code: room ccode
  * @param fieldName
  * @param value
  */
@@ -84,9 +86,32 @@ export const generateRoomCode = async () => {
     const db = getFirestore();
     let roomNum = Math.round(Math.random() * 99999) // number between 0 and 99999
     let docSnap = await getDoc(doc(db, "Rooms", `${roomNum}`));
-    while(docSnap.exists()) {
+    while (docSnap.exists()) {
         let roomNum = Math.round(Math.random() * 99999) // number between 0 and 99999
         docSnap = await getDoc(doc(db, "Rooms", `${roomNum}`));
     }
     return roomNum;
+}
+
+export const createMovieObjects = async (moviesInJSON: any[]) => {
+    const result: Movie[] = [];
+    for (let k = 0; k < moviesInJSON.length; k++) {
+        const i = moviesInJSON[k];
+        result.push({
+            adult: i.adult? i.adult : null,
+            backdrop_path: i.backdrop_path? i.backdrop_path : null,
+            genre_ids: i.genre_ids? i.genre_ids : null,
+            id: i.id ? i.id : null,
+            original_language: i.original_language? i.original_language : null,
+            original_title: i.original_title? i.original_title : null,
+            overview: i.overview? i.overview : null,
+            popularity: i.popularity,
+            poster_path: i.poster_path,
+            release_date: i.release_date,
+            title: i.title,
+            video: i.video,
+            vote_average: i.vote_average,
+            vote_count: i.vote_count,
+        })
+    }
 }

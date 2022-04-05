@@ -15,6 +15,7 @@ import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import { useEffect } from 'react';
 import { movieKey } from './../constants/Keys';
 import { createRoom } from '../utils/utils';
+import { fetchMovies } from '../utils/movie_api';
 
 let DATA: Genre[] = [];
 export const HostSetupScreen = () => {
@@ -60,7 +61,6 @@ export const HostSetupScreen = () => {
             <Item
                 genre={item}
                 onPress={() => {
-                    console.log('genre pressed: ', item);
                     const selected = Object.assign([], selectedGenres);
                     if (selectedGenres.includes(item)) {
                         selected.splice(selected.indexOf(item), 1);
@@ -98,11 +98,14 @@ export const HostSetupScreen = () => {
                                 setNumError(false);
                                 try {
                                     const rmSize = parseInt(values.size);
+                                    const movies = await fetchMovies(selectedGenres);
                                     const room: Room = {
                                         size: rmSize,
                                         isVoting: false,
                                         selectedGenres: selectedGenres,
                                         connectedUsers: 0,
+                                        movies: movies,
+                                        movieVotes: [],
                                     }
                                     const rmCode = createRoom(room);
                                     setRoomNumber(await rmCode);
