@@ -25,12 +25,19 @@ export const fetchMovies = async (selectedGenres: Genre[]) => {
         }
     }
     let response: any = await fetch(request);
-    console.log(response);
     if(response.ok) {
         response = await response.json();
         const movies = response.results;
         return movies;
-    } else {
+    }
+    return null;
+};
+
+export const fetchConfig = async () => {
+    let request = `https://api.themoviedb.org/3/configuration?api_key=${movieKey}`;
+    let response: any = await fetch(request);
+    if(response.ok) {
         return response;
     }
-};
+    return null;
+}

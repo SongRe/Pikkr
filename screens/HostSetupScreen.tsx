@@ -8,13 +8,13 @@ import { useNavigation } from '@react-navigation/core';
 import { useState } from 'react';
 import { BackIcon } from '../components/Icons';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { currentRoomState, roomNumberState, selectedGenresState } from './../state/atoms/atoms';
+import { currentRoomState, movieState, roomNumberState, selectedGenresState } from './../state/atoms/atoms';
 import { generalStyles } from './../constants/Styles';
 import { Genre, GenreItem, Room } from '../constants/Types';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import { useEffect } from 'react';
 import { movieKey } from './../constants/Keys';
-import { createRoom } from '../utils/utils';
+import { createMovieObjects, createRoom } from '../utils/utils';
 import { fetchMovies } from '../utils/movie_api';
 
 let DATA: Genre[] = [];
@@ -27,6 +27,7 @@ export const HostSetupScreen = () => {
     const [numError, setNumError] = useState(false);
     const [error, setError] = useState(null);
     const [selectedGenres, setSelectedGenres] = useRecoilState(selectedGenresState);
+    const [movies, setMovies] = useRecoilState(movieState);
     const setRoomNumber = useSetRecoilState(roomNumberState);
     const setRoom = useSetRecoilState(currentRoomState);
 
@@ -99,15 +100,17 @@ export const HostSetupScreen = () => {
                                 try {
                                     const rmSize = parseInt(values.size);
                                     const movies = await fetchMovies(selectedGenres);
+                                    const movieObj = createMovieObjects(movies);
                                     const room: Room = {
                                         size: rmSize,
                                         isVoting: false,
                                         selectedGenres: selectedGenres,
                                         connectedUsers: 0,
-                                        movies: movies,
+                                        movies: movieObj,
                                         movieVotes: [],
                                     }
                                     const rmCode = createRoom(room);
+                                    setMovies(movieObj);
                                     setRoomNumber(await rmCode);
                                     setRoom(room);
 

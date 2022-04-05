@@ -37,3 +37,9 @@ Useful scripts
 - ```expo start --android```
 - ```expo start --ios```
 - ```expo start --web```
+
+Useful documentation for reference:
+- https://docs.expo.dev/guides/using-firebase/#using-expo-with-firestore
+- https://firebase.google.com/docs/firestore/query-data/listen
+- https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+- https://developers.themoviedb.org/3/getting-started/introduction

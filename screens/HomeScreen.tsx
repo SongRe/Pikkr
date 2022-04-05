@@ -5,12 +5,12 @@ import { Button, makeStyles } from "react-native-elements";
 import { SCREENS } from "./constants";
 import { COLORS } from "../constants/Colors";
 import { Formik } from "formik";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { generalStyles } from './../constants/Styles';
-import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { getRoomByCode, incrementConnectedUsers } from './../utils/utils';
 import { useSetRecoilState } from 'recoil';
 import { currentRoomState, roomNumberState } from "../state/atoms";
+import { movieState } from "../state/atoms/atoms";
 
 export const HomeScreen = () => {
     const nav = useNavigation();
@@ -20,6 +20,7 @@ export const HomeScreen = () => {
     const [codeError, setCodeError] = useState(false);
     const setRoom = useSetRecoilState(currentRoomState);
     const setRoomNumber = useSetRecoilState(roomNumberState);
+    const setMovies = useSetRecoilState(movieState);
 
     const handleCode = async (values: any) => {
         const res = await getRoomByCode(values.code);
@@ -27,6 +28,7 @@ export const HomeScreen = () => {
             setRoom(res);
             setRoomNumber(values.code);
             setCodeError(false);
+            setMovies(res.movies);
             nav.navigate(SCREENS.GUEST_WAIT);
             incrementConnectedUsers(values.code); //1 more connected user
         } else {

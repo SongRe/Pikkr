@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { Genre, Room } from "../../constants/Types";
+import { Genre, Movie, Room } from "../../constants/Types";
 
 export const selectedGenresState = atom<Genre[]>({
     key: 'selectedGenres',
@@ -12,7 +12,7 @@ export const currentRoomState = atom<Room>({
     default: {
         size: 1,
         isVoting: false,
-        connectedUsers: [],
+        connectedUsers: 0,
         selectedGenres: [],
         movies: [],
         movieVotes: [],
@@ -22,4 +22,14 @@ export const currentRoomState = atom<Room>({
 export const roomNumberState = atom<Number>({
     key: 'roomNumber',
     default: 0,
-})
+});
+
+export const movieState = atom<Movie[]>({
+    key: 'movies',
+    default: [],
+});
+
+export const movieVoteState = atom<number[]>({
+    key: 'movieVotes',
+    default: [],
+});

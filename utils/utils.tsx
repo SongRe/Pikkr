@@ -93,7 +93,7 @@ export const generateRoomCode = async () => {
     return roomNum;
 }
 
-export const createMovieObjects = async (moviesInJSON: any[]) => {
+export const createMovieObjects = (moviesInJSON: any[]) => {
     const result: Movie[] = [];
     for (let k = 0; k < moviesInJSON.length; k++) {
         const i = moviesInJSON[k];
@@ -114,4 +114,5 @@ export const createMovieObjects = async (moviesInJSON: any[]) => {
             vote_count: i.vote_count,
         })
     }
+    return result;
 }
