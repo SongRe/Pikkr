@@ -1,6 +1,6 @@
 import { useRecoilValue } from "recoil";
 import { movieKey } from "../constants/Keys";
-import { Genre } from "../constants/Types";
+import { Genre, Movie } from "../constants/Types";
 import { selectedGenresState } from './../state/atoms/atoms';
 
 export const fetchGenres = (async () => {
@@ -40,4 +40,12 @@ export const fetchConfig = async () => {
         return response;
     }
     return null;
+}
+
+export const fetchMoviePosters = (movies: Movie[]) => {
+    const result : string[] = [];
+    for (let i = 0; i < movies.length; i++) {
+        result.push(`https://image.tmdb.org/t/p/w500${movies[i].poster_path}`);
+    }
+    return result;
 }

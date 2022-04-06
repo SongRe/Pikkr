@@ -105,7 +105,7 @@ export const HostSetupScreen = () => {
                                         size: rmSize,
                                         isVoting: false,
                                         selectedGenres: selectedGenres,
-                                        connectedUsers: 0,
+                                        connectedUsers: 1,
                                         movies: movieObj,
                                         movieVotes: [],
                                     }

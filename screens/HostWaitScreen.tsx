@@ -17,6 +17,7 @@ export const HostWaitScreen = () => {
     const waitStyles = useStyles();
     const nav = useNavigation();
 
+    const backgroundImage = require('../assets/images/PikkrBackgroundVector.png')
 
     const [room, setRoom] = useRecoilState(currentRoomState);
     const roomCode = useRecoilValue(roomNumberState);
@@ -50,7 +51,7 @@ export const HostWaitScreen = () => {
         <View style={genStyles.layout}>
             <Image
                 style={genStyles.bkgImg}
-                source={require("../assets/images/PikkrBackgroundVector.png")}
+                source={backgroundImage}
             />
             <View style={genStyles.mainContainer}>
                 <View style={waitStyles.iconContainer}>
@@ -65,7 +66,7 @@ export const HostWaitScreen = () => {
                     </View>
                     <View style={waitStyles.dataRow}>
                         <Text style={waitStyles.dataText}>{room.selectedGenres?.length}</Text>
-                        <Text style={waitStyles.dataText}>{room.connectedUsers}</Text>
+                        <Text style={waitStyles.dataText}>{room.connectedUsers? room.connectedUsers : 0}</Text>
                         <Text style={waitStyles.dataText}>{room.size}</Text>
                     </View>
                     <View style={{
