@@ -1,6 +1,6 @@
 
 import { doc, getDoc, getFirestore, increment, setDoc, updateDoc } from 'firebase/firestore';
-import { Movie, Room } from '../constants/Types';
+import { Genre, Movie, Room } from '../constants/Types';
 
 
 export const getRoomByCode = async (code: string) => {
@@ -117,4 +117,15 @@ export const createMovieObjects = (moviesInJSON: any[]) => {
     return result;
 }
 
+export const createGenreObjects = (genreInJSON: any[]) => {
+    const result: Genre[] = [];
+    for (let k = 0; k < genreInJSON.length; k++) {
+        const i = genreInJSON[k];
+        result.push({
+            id: i.id,
+            name: i.name,
+        });
+    }
+    return result;
+}
 

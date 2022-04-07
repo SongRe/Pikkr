@@ -21,6 +21,7 @@
         "@react-navigation/stack": "~5.12.8",
         "bulma": "^0.9.3",
         "dotenv": "^16.0.0",
+        "evil-icons": "^1.10.1",
         "expo": "~41.0.1",
         "expo-asset": "~8.3.1",
         "expo-constants": "~10.1.3",

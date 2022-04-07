@@ -7,6 +7,11 @@ export const selectedGenresState = atom<Genre[]>({
 
 });
 
+export const loadedGenresState = atom<Genre[]>({
+    key: 'loadedGenres',
+    default: [],
+})
+
 export const currentRoomState = atom<Room>({
     key: 'currentRoom',
     default: {
@@ -31,5 +36,5 @@ export const movieState = atom<Movie[]>({
 
 export const movieVoteState = atom<number[]>({
     key: 'movieVotes',
-    default: [],
+    default: new Array<number>(20),
 });

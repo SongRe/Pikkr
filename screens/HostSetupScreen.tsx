@@ -8,13 +8,13 @@ import { useNavigation } from '@react-navigation/core';
 import { useState } from 'react';
 import { BackIcon } from '../components/Icons';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { currentRoomState, movieState, roomNumberState, selectedGenresState } from './../state/atoms/atoms';
+import { currentRoomState, loadedGenresState, movieState, roomNumberState, selectedGenresState } from './../state/atoms/atoms';
 import { generalStyles } from './../constants/Styles';
 import { Genre, GenreItem, Room } from '../constants/Types';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import { useEffect } from 'react';
 import { movieKey } from './../constants/Keys';
-import { createMovieObjects, createRoom } from '../utils/utils';
+import { createGenreObjects, createMovieObjects, createRoom } from '../utils/utils';
 import { fetchMovies } from '../utils/movie_api';
 
 let DATA: Genre[] = [];
@@ -30,6 +30,7 @@ export const HostSetupScreen = () => {
     const [movies, setMovies] = useRecoilState(movieState);
     const setRoomNumber = useSetRecoilState(roomNumberState);
     const setRoom = useSetRecoilState(currentRoomState);
+    const setLoadedGenres = useSetRecoilState(loadedGenresState);
 
     const fetchGenres = async () => {
         let response: any = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${movieKey}&language=en-US`);
@@ -37,6 +38,7 @@ export const HostSetupScreen = () => {
             response = await response.json();
             const genres = response.genres;
             DATA = genres;
+            setLoadedGenres(createGenreObjects(genres));
             setIsLoading(false);
         } else {
             setError(response.message);

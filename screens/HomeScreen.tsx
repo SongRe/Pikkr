@@ -1,16 +1,17 @@
 import { useNavigation } from "@react-navigation/core";
 import * as React from "react";
-import { StyleSheet, Text, View, Image, TextInput, ScrollView } from "react-native";
-import { Button, makeStyles } from "react-native-elements";
+import { Text, View, TextInput, ScrollView } from "react-native";
+import { Button, makeStyles, Image } from "react-native-elements";
 import { SCREENS } from "./constants";
 import { COLORS } from "../constants/Colors";
 import { Formik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { generalStyles } from './../constants/Styles';
-import { getRoomByCode, incrementConnectedUsers } from './../utils/utils';
+import { createGenreObjects, getRoomByCode, incrementConnectedUsers } from './../utils/utils';
 import { useSetRecoilState } from 'recoil';
 import { currentRoomState, roomNumberState } from "../state/atoms";
-import { movieState } from "../state/atoms/atoms";
+import { loadedGenresState, movieState } from "../state/atoms/atoms";
+import { fetchGenres } from './../utils/movie_api';
 
 export const HomeScreen = () => {
     const nav = useNavigation();
@@ -21,26 +22,41 @@ export const HomeScreen = () => {
     const setRoom = useSetRecoilState(currentRoomState);
     const setRoomNumber = useSetRecoilState(roomNumberState);
     const setMovies = useSetRecoilState(movieState);
+    const setLoadedGenres = useSetRecoilState(loadedGenresState);
 
     const handleCode = async (values: any) => {
         const res = await getRoomByCode(values.code);
-        if(res != null) {
-            setRoom(res);
-            setRoomNumber(values.code);
-            setCodeError(false);
-            setMovies(res.movies);
-            nav.navigate(SCREENS.GUEST_WAIT);
-            incrementConnectedUsers(values.code); //1 more connected user
+        const genres = await fetchGenres();
+        if (res != null) {
+            if (res.connectedUsers < 1) {
+                setCodeError(true);
+            } else {
+                setRoom(res);
+                setRoomNumber(values.code);
+                setCodeError(false);
+                setMovies(res.movies);
+                nav.navigate(SCREENS.GUEST_WAIT);
+                incrementConnectedUsers(values.code); //1 more connected user
+            }
         } else {
             setCodeError(true);
+        }
+        if (genres != null) {
+            setLoadedGenres(createGenreObjects(genres));
         }
     };
 
     return (
         <View style={genStyles.layout}>
             <Image
-                style={homeStyles.image}
-                source={require("../assets/images/PikkrBackgroundVector.png")}
+                style={{
+                    height: 400,
+                    width: 400,
+                    resizeMode: 'cover',
+                    alignSelf: 'center',
+                    padding: 200,
+                }}
+                source={{ uri: require('../assets/images/PikkrBackgroundVector.png') }}
             />
             <View style={genStyles.mainContainer}>
                 <Text style={genStyles.title}>Get Started</Text>
@@ -49,7 +65,6 @@ export const HomeScreen = () => {
                         <Formik
                             initialValues={{ code: "" }}
                             onSubmit={async (values) => {
-                                console.log('on submit', values);
                                 await handleCode(values);
                                 //this is where we will validate the code, and navigate / display error accordingly
                             }}
@@ -80,6 +95,7 @@ export const HomeScreen = () => {
                                         titleStyle={homeStyles.buttonText}
                                         buttonStyle={homeStyles.createButton}
                                         containerStyle={homeStyles.createButtonContainer}
+                                        disabled={values.code.length <= 0}
 
                                     />
                                 </View>
@@ -114,8 +130,8 @@ const useStyles = makeStyles(() => ({
     },
 
     image: {
-        position: "absolute",
-        zIndex: 0,
+        height: 400,
+        width: 400,
     },
     text: {
         fontFamily: 'Poppins',

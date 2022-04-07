@@ -31,6 +31,12 @@ export enum COLORS  {
   GENRE_PURPLE = '#6F7AFF',
   GENRE_WHITE = '#CCCCCC',
   TEXT_INPUT = '#44454E', //background color for text input
+
+  DETAIL_GREY = '#44454E',
+  DETAIL_BLUE = '#6F7AFF',
+
+  SWIPE_BLUE = '#4496CF',
+  SWIPE_PURPLE = '#3F2DC9',
   
 }
 
