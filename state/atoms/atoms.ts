@@ -21,6 +21,7 @@ export const currentRoomState = atom<Room>({
         selectedGenres: [],
         movies: [],
         movieVotes: [],
+        votesSubmitted: 0,
     },
 });
 

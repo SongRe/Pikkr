@@ -1,16 +1,17 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, SafeAreaView, FlatList, Dimensions, StyleProp, ViewStyle, TextStyle, ScrollView } from 'react-native';
-import { Button, makeStyles, Image, Icon, FAB } from 'react-native-elements';
+import React, { useEffect, useRef } from 'react';
+import { Text, View, ActivityIndicator, Dimensions, ScrollView } from 'react-native';
+import { makeStyles, Image, FAB } from 'react-native-elements';
 import { fetchMoviePosters } from '../utils/movie_api';
 import { useRecoilValue, useRecoilState } from 'recoil';
-import { loadedGenresState, movieState, movieVoteState } from '../state/atoms/atoms';
-import { Genre, Movie } from '../constants/Types';
+import { loadedGenresState, movieState, movieVoteState, roomNumberState } from '../state/atoms/atoms';
+import { Genre } from '../constants/Types';
 import { useState } from 'react';
-import { generalStyles } from './../constants/Styles';
 import { COLORS } from '../constants/Colors';
 import { AntDesign, Entypo, } from '@expo/vector-icons';
 import { DetailItem } from '../components/DetailItem';
 import { useSwipe } from '../hooks/useSwipe';
+import { useNavigation } from '@react-navigation/core';
+import { SCREENS } from './constants';
 
 //TODO: get swiping working
 //TODO: figure out a way to sync voting (voting end waiting screen ?)
@@ -20,48 +21,58 @@ import { useSwipe } from '../hooks/useSwipe';
 
 export const VotingScreen = () => {
     const styles = voteStyles();
+    const nav = useNavigation();
 
     const [posterIndex, setPosterIndex] = useState(0);
     const [showDetails, setShowDetails] = useState(false);
     const [movieVotes, setMovieVotes] = useRecoilState(movieVoteState);
     const loadedGenres = useRecoilValue(loadedGenresState);
     const [activeGenres, setActiveGenres] = useState<Genre[]>(loadedGenres);
-
+    const roomCode = useRecoilValue(roomNumberState);
     const window = Dimensions.get('window');
-
+    const initialRender = useRef(true);
 
     const movies = useRecoilValue(movieState);
     const posters = fetchMoviePosters(movies);
 
+    useEffect(() => {
+        if (initialRender.current === true) {
+            initialRender.current = false;
+        } else {
+            setPosterIndex(posterIndex + 1);
+        }
+        if (posterIndex >= movies.length - 1) {
+            nav.navigate(SCREENS.ENDING);
+        }
+    }, [movieVotes]);
 
     useEffect(() => {
         const result = loadedGenres.filter(value => {
-            return movies[posterIndex].genre_ids.includes(value.id);
+            return movies[posterIndex]? movies[posterIndex].genre_ids.includes(value.id) : false;
         });
         setActiveGenres(result);
-    }, [posterIndex])
+    }, [posterIndex]);
 
     const popularityPercentage = (value: number) => {
-        return `${Math.round(value / 65)}%`;
+        return `${Math.round(value * 10)}%`;
     }
 
     const toggleDetails = () => {
         setShowDetails(!showDetails);
     }
 
-
-    const onSwipeLeft = () => {
-        console.log('left swiped');
-        setPosterIndex(posterIndex + 1);
-    }
-
-    const onSwipeRight = () => {
-        const votes = Object.assign([], movieVotes);
-        votes[posterIndex]++;
+    const onSwipeLeft = async () => {
+        const votes = Object.assign(new Array<number>(20), movieVotes);
+        votes[posterIndex] = 0;
         setMovieVotes(votes);
-        console.log('right swiped');
-        setPosterIndex(posterIndex + 1);
     }
+
+    const onSwipeRight = async () => {
+        const votes = Object.assign(new Array<number>(20), movieVotes);
+        votes[posterIndex] = 1;
+        setMovieVotes(votes);
+    }
+
     const { onTouchStart, onTouchEnd } = useSwipe(onSwipeLeft, onSwipeRight, 1)
 
     return (
@@ -72,7 +83,7 @@ export const VotingScreen = () => {
                     alignItems: 'center',
                     overflow: 'hidden',
                 }}>
-                    <Image source={{ uri: posters[posterIndex] }} PlaceholderContent={<ActivityIndicator />} style={{
+                    <Image source={{ uri: posters[posterIndex]? posters[posterIndex] : '' }} PlaceholderContent={<ActivityIndicator />} style={{
                         resizeMode: 'cover',
                         height: showDetails ? window.height * 0.35 : window.height * 0.65,
                         minHeight: showDetails ? 0 : 500,
@@ -95,15 +106,15 @@ export const VotingScreen = () => {
                         <AntDesign name="up" size={25} color={COLORS.WHITE} onPress={toggleDetails} />
                     }
 
-                    <Text style={styles.movieTitle}>{movies[posterIndex].original_title}</Text>
+                    <Text style={styles.movieTitle}>{movies[posterIndex]? movies[posterIndex].original_title : 'placeholder'}</Text>
                     <View style={styles.detailRow}>
-                        <DetailItem style={styles.detailContainer} textStyle={styles.detailText} text={movies[posterIndex].release_date.split('-').at(0)} />
-                        <DetailItem style={styles.detailContainer} textStyle={styles.detailText} text={movies[posterIndex].original_language.toUpperCase()} />
-                        <Text style={styles.popularityText}>{popularityPercentage(movies[posterIndex].popularity)}</Text>
+                        <DetailItem style={styles.detailContainer} textStyle={styles.detailText} text={movies[posterIndex]? movies[posterIndex].release_date.split('-').at(0) : 'TBA'} />
+                        <DetailItem style={styles.detailContainer} textStyle={styles.detailText} text={movies[posterIndex]? movies[posterIndex].original_language.toUpperCase() : 'placeholder'} />
+                        <Text style={styles.popularityText}>{popularityPercentage(movies[posterIndex]? movies[posterIndex].vote_average : 0)}</Text>
                     </View>
                     {showDetails ?
                         <View>
-                            <Text style={styles.descriptionText}>{movies[posterIndex].overview}</Text>
+                            <Text style={styles.descriptionText}>{movies[posterIndex]? movies[posterIndex].overview : 'placeholder'}</Text>
                             <View style={{
                                 display: 'flex',
                                 flexDirection: 'row',
@@ -120,8 +131,12 @@ export const VotingScreen = () => {
                         : null
                     }
                 </View>
-                <FAB style={{position: 'absolute', left: '20%', bottom: '5%',}} color={COLORS.SWIPE_PURPLE} icon={<Entypo name="cross" size={24} color="white" />} onPress={onSwipeLeft}/>
-                <FAB style={{position: 'absolute', right: '20%', bottom: '5%'}} color={COLORS.SWIPE_BLUE} icon={<AntDesign name="heart" size={24} color="white"/>} onPress={onSwipeRight}/>
+                <FAB style={{ position: 'absolute', left: '20%', bottom: '5%', }} color={COLORS.SWIPE_PURPLE} icon={<Entypo name="cross" size={24} color="white" />} onPress={onSwipeLeft} />
+                <FAB style={{ position: 'absolute', right: '20%', bottom: '5%' }} color={COLORS.SWIPE_BLUE} icon={<AntDesign name="heart" size={24} color="white" />} onPress={onSwipeRight} />
+                <FAB style={{ position: 'absolute', right: '20%', top: '5%' }} color={COLORS.SWIPE_BLUE} icon={<AntDesign name="heart" size={24} color="white" />} onPress={() => {
+                    nav.goBack();
+                }} />
+
             </View>
         </ScrollView>
     )

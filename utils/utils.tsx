@@ -16,6 +16,7 @@ export const getRoomByCode = async (code: string) => {
             connectedUsers: document.connectedUsers ? document.connectedUsers : null,
             movies: document.movies ? document.movies : null,
             movieVotes: document.movieVotes ? document.movieVotes : null,
+            votesSubmitted: document.votesSubmitted ? document.votesSubmitted : 0,
         }
         return room;
     } else {
@@ -38,6 +39,7 @@ export const updateRoom = async (code: string, room: Room) => {
         connectedUsers: room.connectedUsers,
         movies: room.movies,
         movieVotes: room.movieVotes,
+        votesSubmmitted: room.votesSubmitted,
     });
     return res;
 }
@@ -52,7 +54,7 @@ export const updateRoom = async (code: string, room: Room) => {
     const db = getFirestore();
     const roomRef = doc(db, "Rooms", `${code}`);
     const res = await updateDoc(roomRef, {
-        [fieldName]: value,
+        [`${fieldName}`]: value,
     });
     return res;
 }
@@ -62,6 +64,15 @@ export const incrementConnectedUsers = async (code: string) => {
     const roomRef = doc(db, "Rooms", `${code}`);
     const res = await updateDoc(roomRef, {
         connectedUsers: increment(1),
+    });
+    return res;
+}
+
+export const incrementVotesSubmitted = async (code: string) => {
+    const db = getFirestore();
+    const roomRef = doc(db, "Rooms", `${code}`);
+    const res = await updateDoc(roomRef, {
+        votesSubmitted: increment(1),
     });
     return res;
 }

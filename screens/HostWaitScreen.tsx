@@ -33,15 +33,16 @@ export const HostWaitScreen = () => {
     const unsub = onSnapshot(doc(db, "Rooms", `${roomCode}`), (doc) => {
         const document = doc.data();
         if(document) {
-            const room: Room = {
+            const newRoom: Room = {
                 size: document.size,
                 isVoting: document.isVoting,
                 selectedGenres: document.selectedGenres ? document.selectedGenres : null,
                 connectedUsers: document.connectedUsers ? document.connectedUsers : null,
                 movies: document.movies ? document.movies : null,
                 movieVotes: document.movieVotes ? document.movieVotes : null,
+                votesSubmitted: document.votesSubmitted ? document.votesSubmitted : null,
             }
-            setRoom(room);
+            setRoom(newRoom);
         } else {
             console.log('error');
         }

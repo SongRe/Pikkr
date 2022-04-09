@@ -110,6 +110,7 @@ export const HostSetupScreen = () => {
                                         connectedUsers: 1,
                                         movies: movieObj,
                                         movieVotes: [],
+                                        votesSubmitted: 0,
                                     }
                                     const rmCode = createRoom(room);
                                     setMovies(movieObj);

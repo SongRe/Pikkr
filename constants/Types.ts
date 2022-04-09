@@ -28,6 +28,7 @@ export interface Room {
     selectedGenres?: Genre[];
     movies: any[];
     movieVotes: number[];
+    votesSubmitted: number;
 }
 
 export interface Movie {
