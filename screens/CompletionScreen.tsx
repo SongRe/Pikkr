@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, SafeAreaView, FlatList, Dimensions, StyleProp, ViewStyle, TextStyle, ScrollView } from 'react-native';
 import { Button, makeStyles, Image, Icon, FAB } from 'react-native-elements';
 import { fetchMoviePosters } from '../utils/movie_api';
-import { useRecoilValue, useRecoilState } from 'recoil';
+import { useRecoilValue, useRecoilState, useResetRecoilState } from 'recoil';
 import { loadedGenresState, movieState, movieVoteState, roomNumberState } from '../state/atoms/atoms';
 import { Genre, Movie, Room } from '../constants/Types';
 import { useState } from 'react';
@@ -12,16 +12,26 @@ import { AntDesign, Entypo, } from '@expo/vector-icons';
 import { DetailItem } from '../components/DetailItem';
 import { useSwipe } from '../hooks/useSwipe';
 import { doc, onSnapshot, getFirestore, getDoc } from 'firebase/firestore';
-import { currentRoomState } from './../state/atoms/atoms';
+import { currentRoomState, selectedGenresState } from './../state/atoms/atoms';
 import { incrementVotesSubmitted, updateRoomField } from '../utils/utils';
+import { useNavigation } from '@react-navigation/core';
+import { SCREENS } from './constants';
 
 // - 
 
 export const CompletionScreen = () => {
     const styles = voteStyles();
     const genStyles = generalStyles();
+    const nav = useNavigation();
 
-    const [posIndex, setposIndex] = useState<number>(0);
+    const resetGenres = useResetRecoilState(selectedGenresState);
+    const resetLoadedGenres = useResetRecoilState(loadedGenresState);
+    const resetCurrentRoom = useResetRecoilState(currentRoomState);
+    const resetRoomNumber = useResetRecoilState(roomNumberState);
+    const resetMovie = useResetRecoilState(movieState);
+    const resetMovieVotes = useResetRecoilState(movieVoteState);
+
+    const [posIndex, setposIndex] = useState<number>(-1);
     const [movieVotes, setMovieVotes] = useRecoilState(movieVoteState);
     const [showDetails, setShowDetails] = useState(false);
     const loadedGenres = useRecoilValue(loadedGenresState);
@@ -36,6 +46,11 @@ export const CompletionScreen = () => {
     const toggleDetails = () => {
         setShowDetails(!showDetails);
     };
+
+    useEffect(() => {
+        console.log('curRoom: ', room);
+        console.log('voting complete: ', votingComplete);
+    })
 
     useEffect(() => {
         if (initialRender.current === true) {
@@ -54,14 +69,10 @@ export const CompletionScreen = () => {
             const document = docSnap.data();
             const roomVotes = document.movieVotes;
             const results = Object.assign(new Array<number>(20), movieVotes);
-            console.log('prev results', results);
             for (let i = 0; i < movieVotes.length; i++) {
                 results[i] = (movieVotes[i] + ((roomVotes[i]) ? roomVotes[i] : 0));
                 console.log('results[i]: ', results[i], i);
             }
-            console.log('movie votes after', movieVotes);
-            setMovieVotes(results);
-            console.log('new movie votes: ', results);
             //console.log('new results', movieVotes);
             const res = await updateRoomField(roomCode.toString(), 'movieVotes', results);
             const response = await incrementVotesSubmitted(roomCode.toString());
@@ -75,7 +86,7 @@ export const CompletionScreen = () => {
     const unsub = onSnapshot(doc(db, "Rooms", `${roomCode}`), (doc) => {
         const document = doc.data();
         if (document) {
-            const newRoom : Room = {
+            const newRoom: Room = {
                 size: document.size,
                 isVoting: document.isVoting,
                 connectedUsers: document.connectedUsers,
@@ -83,32 +94,35 @@ export const CompletionScreen = () => {
                 movieVotes: document.movieVotes,
                 votesSubmitted: document.votesSubmitted,
             }
-            setRoom(newRoom);
+            if (document.votesSubmitted >= document.size) {
+                setVotingComplete(true);
+                setRoom(newRoom);
+                unsub();
+            } else {
+                setMovieVotes(document.movieVotes); // update movie votes
+            }
+
+
         } else {
             console.log('error');
         }
     });
 
-    useEffect(() => {
-        if (room.votesSubmitted >= room.size) {
-            console.log('we should display winning movie now');
-            setVotingComplete(true);
-            unsub();
-        }
 
-    }, [room.votesSubmitted]);
+    // useEffect(() => {
+    //     console.log ('current posIndex', posIndex);
+    //     if (posIndex !== -1) {
+    //         const result = loadedGenres.filter(value => {
+    //             return movies[posIndex].genre_ids.includes(value.id);
+    //         });
+    //         setActiveGenres(result);
+    //     }
 
-    useEffect(() => {
-        const result = loadedGenres.filter(value => {
-            return movies[posIndex].genre_ids.includes(value.id);
-        });
-        setActiveGenres(result);
 
-    }, [posIndex]);
+    // }, [posIndex]);
 
     useEffect(() => {
-        console.log('room movie votes', room.movieVotes);
-        if (votingComplete && room.movieVotes) {
+        if (votingComplete && room.movieVotes && initialRender.current === false) {
             console.log('voting complete, calculating result...');
             let maxVal = 0;
             let results = [];
@@ -125,8 +139,10 @@ export const CompletionScreen = () => {
             }
 
             console.log('winning votes: ', results);
-            setposIndex(results[0]);
-
+            if (results[0]) {
+                setposIndex(results[0]); // by default, display the first result
+            }
+            console.log(' winning position: ', posIndex);
         }
     }, [votingComplete]);
 
@@ -137,71 +153,74 @@ export const CompletionScreen = () => {
 
 
     return (
-        <View style={genStyles.layout}>
-            <View style={genStyles.mainContainer}>
-                {(votingComplete) ?
-                    <View>
-                        <View style={{
-                            borderRadius: 20,
-                            alignItems: 'center',
-                            overflow: 'hidden',
-                        }}>
-                            <Image source={{ uri: posters[posIndex] }} PlaceholderContent={<ActivityIndicator />} style={{
-                                resizeMode: 'cover',
-                                height: showDetails ? window.height * 0.35 : window.height * 0.65,
-                                minHeight: showDetails ? 0 : 500,
-                                width: window.width,
-                                zIndex: 0,
-                                borderRadius: 70,
-                            }}></Image>
-                        </View>
-                        <View style={{
-                            height: showDetails ? window.height * 0.65 : window.height * 0.35,
-                            width: '100%',
-                            backgroundColor: COLORS.BLACK,
-                            borderRadius: 20,
-                            paddingHorizontal: '10%',
-                            alignItems: 'center',
-                        }}>
-                            {showDetails ? <AntDesign
-                                name="down" size={25} color={COLORS.WHITE} onPress={toggleDetails}
-                            /> :
-                                <AntDesign name="up" size={25} color={COLORS.WHITE} onPress={toggleDetails} />
-                            }
-
-                            <Text style={styles.movieTitle}>{movies[posIndex] ? movies[posIndex].original_title : 'lol'}</Text>
-                            <View style={styles.detailRow}>
-                                <DetailItem style={styles.detailContainer} textStyle={styles.detailText} text={movies[posIndex].release_date.split('-').at(0)} />
-                                <DetailItem style={styles.detailContainer} textStyle={styles.detailText} text={movies[posIndex].original_language.toUpperCase()} />
-                                <Text style={styles.popularityText}>{popularityPercentage(movies[posIndex].vote_average)}</Text>
-                            </View>
-                            {showDetails ?
-                                <View>
-                                    <Text style={styles.descriptionText}>{movies[posIndex].overview}</Text>
-                                    <View style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        marginTop: '2%',
-                                    }}>
-                                        {activeGenres.map((genre) => {
-                                            return (
-                                                <DetailItem key={genre.id} style={styles.detailContainer} text={genre.name} textStyle={styles.detailText} />
-                                            )
-                                        })}
-                                    </View>
-
-                                </View>
-                                : null
-                            }
-                        </View>
-                    </View> :
-
-                    <View style={genStyles.groupContainer}>
-                        <Text style={genStyles.title}>Waiting for results...</Text>
+        <View style={styles.layout}>
+            {(votingComplete) ?
+                <View style={styles.container}>
+                    <Text style={genStyles.title}>Winner: </Text>
+                    <View style={{
+                        borderRadius: 20,
+                        alignItems: 'center',
+                        overflow: 'hidden',
+                    }}>
+                        <Image source={{ uri: posters[posIndex] ? posters[posIndex] : '' }} PlaceholderContent={<ActivityIndicator />} style={{
+                            resizeMode: 'cover',
+                            height: showDetails ? window.height * 0.35 : window.height * 0.65,
+                            minHeight: showDetails ? 0 : 500,
+                            width: window.width,
+                            zIndex: 0,
+                            borderRadius: 70,
+                        }}></Image>
                     </View>
+                    <View style={{
+                        height: showDetails ? window.height * 0.65 : window.height * 0.35,
+                        width: '100%',
+                        backgroundColor: COLORS.BLACK,
+                        borderRadius: 20,
+                        paddingHorizontal: '10%',
+                        alignItems: 'center',
+                    }}>
+                        {showDetails ? <AntDesign
+                            name="down" size={25} color={COLORS.WHITE} onPress={toggleDetails}
+                        /> :
+                            <AntDesign name="up" size={25} color={COLORS.WHITE} onPress={toggleDetails} />
+                        }
 
-                }
-            </View>
+                        <Text style={styles.movieTitle}>{movies[posIndex] ? movies[posIndex].original_title : 'placeholder'}</Text>
+                        <View style={styles.detailRow}>
+                            <DetailItem style={styles.detailContainer} textStyle={styles.detailText} text={movies[posIndex] ? movies[posIndex].release_date.split('-').at(0) : 'TBA'} />
+                            <DetailItem style={styles.detailContainer} textStyle={styles.detailText} text={movies[posIndex] ? movies[posIndex].original_language.toUpperCase() : 'placeholder'} />
+                            <Text style={styles.popularityText}>{popularityPercentage(movies[posIndex] ? movies[posIndex].vote_average : 0)}</Text>
+                        </View>
+                        {showDetails ?
+                            <View>
+                                <Text style={styles.descriptionText}>{movies[posIndex] ? movies[posIndex].overview : 'placeholder'}</Text>
+                                <View style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    marginTop: '2%',
+                                }}>
+                                </View>
+
+                            </View>
+                            : null
+                        }
+                    </View>
+                    <FAB onPress={() => {
+                        resetGenres();
+                        resetCurrentRoom();
+                        resetLoadedGenres();
+                        resetRoomNumber();
+                        resetMovie();
+                        resetMovieVotes();
+                        nav.navigate(SCREENS.HOME);
+                    }} title="Restart" color={COLORS.DETAIL_BLUE} style={{ bottom: '5%', }}/>
+                </View>
+                :
+                <View style={genStyles.groupContainer}>
+                    <Text style={styles.movieTitle}>Waiting for result :)</Text>
+                </View>
+            }
+
         </View>
     )
 }

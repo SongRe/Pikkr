@@ -35,11 +35,11 @@ export const VotingScreen = () => {
     const movies = useRecoilValue(movieState);
     const posters = fetchMoviePosters(movies);
 
+
     useEffect(() => {
         if (initialRender.current === true) {
             initialRender.current = false;
         } else {
-            setPosterIndex(posterIndex + 1);
         }
         if (posterIndex >= movies.length - 1) {
             nav.navigate(SCREENS.ENDING);
@@ -64,12 +64,14 @@ export const VotingScreen = () => {
     const onSwipeLeft = async () => {
         const votes = Object.assign(new Array<number>(20), movieVotes);
         votes[posterIndex] = 0;
+        setPosterIndex(posterIndex + 1);
         setMovieVotes(votes);
     }
 
     const onSwipeRight = async () => {
         const votes = Object.assign(new Array<number>(20), movieVotes);
         votes[posterIndex] = 1;
+        setPosterIndex(posterIndex + 1);
         setMovieVotes(votes);
     }
 

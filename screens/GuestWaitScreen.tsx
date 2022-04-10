@@ -6,7 +6,7 @@ import EditScreenInfo from '../components/EditScreenInfo';
 import { generalStyles } from '../constants/Styles';
 import { Button, makeStyles } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/core';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { currentRoomState, roomNumberState } from '../state/atoms/atoms';
 import { doc, onSnapshot, getFirestore } from 'firebase/firestore';
 import { Room } from '../constants/Types';
@@ -16,7 +16,7 @@ export const GuestWaitScreen = () => {
     const genStyles = generalStyles();
     const waitStyles = useStyles();
     const nav = useNavigation();
-    const room = useRecoilValue(currentRoomState);
+    const [room, setRoom] = useRecoilState(currentRoomState);
     const roomCode = useRecoilValue(roomNumberState);
 
     const db = getFirestore();
@@ -24,7 +24,10 @@ export const GuestWaitScreen = () => {
     const unsub = onSnapshot(doc(db, "Rooms", `${roomCode}`), (doc) => {
         const document = doc.data();
         if(document) {
-            if(document.isVoting) {
+            if (document.votesSubmitted > document.size) {
+                unsub();
+                nav.navigate(SCREENS.ENDING);
+            } else if (document.isVoting) {
                 unsub();
                 nav.navigate(SCREENS.VOTING);
             }
