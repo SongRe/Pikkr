@@ -37,6 +37,7 @@ Useful scripts
 - ```expo start --android```
 - ```expo start --ios```
 - ```expo start --web```
+- ```firebase deploy``` deploys all of the functions under ./functions to firebase cloud
 
 Useful documentation for reference:
 - https://docs.expo.dev/guides/using-firebase/#using-expo-with-firestore
