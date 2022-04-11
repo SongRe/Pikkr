@@ -49,64 +49,45 @@ export const CompletionScreen = () => {
 
     useEffect(() => {
         console.log('curRoom: ', room);
-        console.log('voting complete: ', votingComplete);
+        console.log('movie votes: ', movieVotes);
+        console.log(votingComplete);
     })
 
     useEffect(() => {
         if (initialRender.current === true) {
-            updateVotes();
+            //updateVotes();
             initialRender.current = false;
         } else {
             // nothing ig
         }
+        const unsub = onSnapshot(doc(db, "Rooms", `${roomCode}`), (doc) => {
+            const document = doc.data();
+            if (document) {
+                setMovieVotes(document.movieVotes);
+                if (document.votesSubmitted >= document.size) {
+                    setVotingComplete(true);
+                    unsub();
+                }
+            } else {
+                console.log('error');
+            }
+        });
+
+        return () => {
+            unsub();
+        }
+
     }, [])
 
-
-    const updateVotes = async () => {
-        let docSnap = await getDoc(doc(db, "Rooms", `${roomCode}`));
-        if (docSnap.exists()) {
-            //should return this as room object
-            const document = docSnap.data();
-            const roomVotes = document.movieVotes;
-            const results = Object.assign(new Array<number>(20), movieVotes);
-            for (let i = 0; i < movieVotes.length; i++) {
-                results[i] = (movieVotes[i] + ((roomVotes[i]) ? roomVotes[i] : 0));
-                console.log('results[i]: ', results[i], i);
-            }
-            //console.log('new results', movieVotes);
-            const res = await updateRoomField(roomCode.toString(), 'movieVotes', results);
-            const response = await incrementVotesSubmitted(roomCode.toString());
-        }
-    }
+    useEffect(() => {
+        // call unsub() to unsubscribe
+        
+    }, []);
 
     const window = Dimensions.get('window');
     const db = getFirestore();
 
-    // call unsub() to unsubscribe
-    const unsub = onSnapshot(doc(db, "Rooms", `${roomCode}`), (doc) => {
-        const document = doc.data();
-        if (document) {
-            const newRoom: Room = {
-                size: document.size,
-                isVoting: document.isVoting,
-                connectedUsers: document.connectedUsers,
-                movies: document.movies,
-                movieVotes: document.movieVotes,
-                votesSubmitted: document.votesSubmitted,
-            }
-            if (document.votesSubmitted >= document.size) {
-                setVotingComplete(true);
-                setRoom(newRoom);
-                unsub();
-            } else {
-                setMovieVotes(document.movieVotes); // update movie votes
-            }
 
-
-        } else {
-            console.log('error');
-        }
-    });
 
 
     // useEffect(() => {

@@ -12,6 +12,8 @@ import { DetailItem } from '../components/DetailItem';
 import { useSwipe } from '../hooks/useSwipe';
 import { useNavigation } from '@react-navigation/core';
 import { SCREENS } from './constants';
+import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import { incrementVotesSubmitted, updateRoomField } from '../utils/utils';
 
 //TODO: get swiping working
 //TODO: figure out a way to sync voting (voting end waiting screen ?)
@@ -35,20 +37,44 @@ export const VotingScreen = () => {
     const movies = useRecoilValue(movieState);
     const posters = fetchMoviePosters(movies);
 
+    const db = getFirestore();
+
+    const updateVotes = async () => {
+        let docSnap = await getDoc(doc(db, "Rooms", `${roomCode}`));
+        if (docSnap.exists()) {
+            //should return this as room object
+            const document = docSnap.data();
+            const roomVotes = document.movieVotes;
+            const results = Object.assign(new Array<number>(20), movieVotes);
+            for (let i = 0; i < movieVotes.length; i++) {
+                results[i] = (movieVotes[i] + ((roomVotes[i]) ? roomVotes[i] : 0));
+                console.log('results[i]: ', results[i], i);
+            }
+            //console.log('new results', movieVotes);
+            const res = await updateRoomField(roomCode.toString(), 'movieVotes', results);
+            const response = await incrementVotesSubmitted(roomCode.toString());
+        }
+    }
+
+    const checkVotingComplete = async () => {
+        if (posterIndex >= movies.length - 1) {
+            const updateStatus = await updateVotes();
+            console.log('update status: ', updateStatus);
+            nav.navigate(SCREENS.ENDING);
+        }
+    }
 
     useEffect(() => {
         if (initialRender.current === true) {
             initialRender.current = false;
         } else {
+            setPosterIndex(posterIndex + 1);
         }
-        if (posterIndex >= movies.length - 1) {
-            nav.navigate(SCREENS.ENDING);
-        }
-    }, [movieVotes]);
+    }, [movieVotes])
 
     useEffect(() => {
         const result = loadedGenres.filter(value => {
-            return movies[posterIndex]? movies[posterIndex].genre_ids.includes(value.id) : false;
+            return movies[posterIndex] ? movies[posterIndex].genre_ids.includes(value.id) : false;
         });
         setActiveGenres(result);
     }, [posterIndex]);
@@ -64,14 +90,12 @@ export const VotingScreen = () => {
     const onSwipeLeft = async () => {
         const votes = Object.assign(new Array<number>(20), movieVotes);
         votes[posterIndex] = 0;
-        setPosterIndex(posterIndex + 1);
         setMovieVotes(votes);
     }
 
     const onSwipeRight = async () => {
         const votes = Object.assign(new Array<number>(20), movieVotes);
         votes[posterIndex] = 1;
-        setPosterIndex(posterIndex + 1);
         setMovieVotes(votes);
     }
 
@@ -85,7 +109,7 @@ export const VotingScreen = () => {
                     alignItems: 'center',
                     overflow: 'hidden',
                 }}>
-                    <Image source={{ uri: posters[posterIndex]? posters[posterIndex] : '' }} PlaceholderContent={<ActivityIndicator />} style={{
+                    <Image source={{ uri: posters[posterIndex] ? posters[posterIndex] : '' }} PlaceholderContent={<ActivityIndicator />} style={{
                         resizeMode: 'cover',
                         height: showDetails ? window.height * 0.35 : window.height * 0.65,
                         minHeight: showDetails ? 0 : 500,
@@ -108,15 +132,15 @@ export const VotingScreen = () => {
                         <AntDesign name="up" size={25} color={COLORS.WHITE} onPress={toggleDetails} />
                     }
 
-                    <Text style={styles.movieTitle}>{movies[posterIndex]? movies[posterIndex].original_title : 'placeholder'}</Text>
+                    <Text style={styles.movieTitle}>{movies[posterIndex] ? movies[posterIndex].original_title : 'placeholder'}</Text>
                     <View style={styles.detailRow}>
-                        <DetailItem style={styles.detailContainer} textStyle={styles.detailText} text={movies[posterIndex]? movies[posterIndex].release_date.split('-').at(0) : 'TBA'} />
-                        <DetailItem style={styles.detailContainer} textStyle={styles.detailText} text={movies[posterIndex]? movies[posterIndex].original_language.toUpperCase() : 'placeholder'} />
-                        <Text style={styles.popularityText}>{popularityPercentage(movies[posterIndex]? movies[posterIndex].vote_average : 0)}</Text>
+                        <DetailItem style={styles.detailContainer} textStyle={styles.detailText} text={movies[posterIndex] ? movies[posterIndex].release_date.split('-').at(0) : 'TBA'} />
+                        <DetailItem style={styles.detailContainer} textStyle={styles.detailText} text={movies[posterIndex] ? movies[posterIndex].original_language.toUpperCase() : 'placeholder'} />
+                        <Text style={styles.popularityText}>{popularityPercentage(movies[posterIndex] ? movies[posterIndex].vote_average : 0)}</Text>
                     </View>
                     {showDetails ?
                         <View>
-                            <Text style={styles.descriptionText}>{movies[posterIndex]? movies[posterIndex].overview : 'placeholder'}</Text>
+                            <Text style={styles.descriptionText}>{movies[posterIndex] ? movies[posterIndex].overview : 'placeholder'}</Text>
                             <View style={{
                                 display: 'flex',
                                 flexDirection: 'row',
@@ -133,8 +157,14 @@ export const VotingScreen = () => {
                         : null
                     }
                 </View>
-                <FAB style={{ position: 'absolute', left: '20%', bottom: '5%', }} color={COLORS.SWIPE_PURPLE} icon={<Entypo name="cross" size={24} color="white" />} onPress={onSwipeLeft} />
-                <FAB style={{ position: 'absolute', right: '20%', bottom: '5%' }} color={COLORS.SWIPE_BLUE} icon={<AntDesign name="heart" size={24} color="white" />} onPress={onSwipeRight} />
+                <FAB style={{ position: 'absolute', left: '20%', bottom: '5%', }} color={COLORS.SWIPE_PURPLE} icon={<Entypo name="cross" size={24} color="white" />} onPress={() => {
+                    onSwipeLeft();
+                    checkVotingComplete();
+                }} />
+                <FAB style={{ position: 'absolute', right: '20%', bottom: '5%' }} color={COLORS.SWIPE_BLUE} icon={<AntDesign name="heart" size={24} color="white" />} onPress={() => {
+                    onSwipeRight();
+                    checkVotingComplete();
+                }} />
                 <FAB style={{ position: 'absolute', right: '20%', top: '5%' }} color={COLORS.SWIPE_BLUE} icon={<AntDesign name="heart" size={24} color="white" />} onPress={() => {
                     nav.goBack();
                 }} />
@@ -204,4 +234,8 @@ const voteStyles = makeStyles(() => ({
         marginTop: '2%',
     }
 }));
+
+function db(db: any, arg1: string, arg2: string): import("@firebase/firestore").DocumentReference<import("@firebase/firestore").DocumentData> {
+    throw new Error('Function not implemented.');
+}
 
