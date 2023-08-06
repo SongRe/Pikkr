@@ -29,6 +29,8 @@ Future Updates
 - Tracker for movies watched, and update recommendations accordingly
 - Authentication for users
 
+Usage
+-
 Useful commands 
 - ```expo start``` will launch the app
 - ```jest -watchAll``` will launch the app in test
